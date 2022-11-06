@@ -293,23 +293,28 @@
   }
 }
 
+
+@mixin focusable {
+  outline: 0;
+  background: lighten($ui-base-color, 4%);
+
+  &.status.status-direct {
+    background: lighten($ui-base-color, 12%);
+
+    &.muted {
+      background: transparent;
+    }
+  }
+
+  .detailed-status,
+  .detailed-status__action-bar {
+    background: lighten($ui-base-color, 8%);
+  }
+}
 .focusable {
-  &:focus {
-    outline: 0;
-    background: lighten($ui-base-color, 4%);
-
-    &.status.status-direct {
-      background: lighten($ui-base-color, 12%);
-
-      &.muted {
-        background: transparent;
-      }
-    }
-
-    .detailed-status,
-    .detailed-status__action-bar {
-      background: lighten($ui-base-color, 8%);
-    }
+  &:focus,
+  &:hover {
+    @include focusable;
   }
 }
 
