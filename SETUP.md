@@ -38,29 +38,27 @@ update your groups.
 2. Run `sudo mkdir /run/postgresql` to create said folder if it doesn't exist.
 3. Run `sudo chown postgres:postgres /run/postgresql` to change the owner to postgres.
 4. Run `sudo chmod g+w /run/postgresql` to allow `postgres` group members to write to the folder.
-1. Navigate to the root of this repo.
-2. Set up a local DB cluster with `pg_ctl -D data/postgres15 initdb -o '-U mastodon --auth-host=trust'`.
-3. Run it with `pg_ctl -D data/postgres15 start`.
-4. Run `bundle config set --local path 'vendor/bundle`. This will store the all the ruby gems locally so that we can
-avoid interfering with system config.
-5. Run `bundle install`.
-6. Run `yarn install`.
-1. Run `export $(grep -v '^#' .env.dev | xargs)` to source in our dev vars. You may want to alias this.
-7. Run `bundle exec rake db:setup`. If this fails, you can use `bundle exec rake db:reset` to forcibly regenerate it.
+5. Navigate to the root of this repo.
+6. Set up a local DB cluster with `pg_ctl -D data/postgres15 initdb -o '-U mastodon --auth-host=trust'`.
+7. Run it with `pg_ctl -D data/postgres15 start`.
+8. Run `bundle config set --local path 'vendor/bundle`. This will store the all the ruby gems locally so that we can
+   avoid interfering with system config.
+9. Run `bundle install`.
+10. Run `yarn install`.
+11. Run `export $(grep -v '^#' .env.dev | xargs)` to source in our dev vars. You may want to alias this.
+12. Run `bundle exec rake db:setup`. If this fails, you can use `bundle exec rake db:reset` to forcibly regenerate it.
 
 ## Running Mastodon
 
-To make our lives easier, we'll use `foreman` to run the site, so use `gem install foreman` to get that going.
-
-Then:
-1. Run `export RAILS_ENV=development` and `export NODE_ENV=development`.
+1. To make our lives easier, we'll use `foreman` to run the site, so use `gem install foreman`.
+2. Run `export RAILS_ENV=development` and `export NODE_ENV=development`.
   a. Put these in your shell's .rc, or a script you can source if you want to skip this step in the future.
-2. Run `bundle exec rake assets:precompile`.
+3. Run `bundle exec rake assets:precompile`.
   a. If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`. Same
      deal as the above.
   b. After doing this, you will need to `bundle exec rake assets:clobber` and then re-run
   `bundle exec rake assets:precompile`.
-3. Run `foreman start`
+4. Run `foreman start`
 
 
 # Updates/Troubleshooting
