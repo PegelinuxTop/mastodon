@@ -23,8 +23,6 @@ On Arch these are `ruby-bundler` and `ruby-irb`.
 
 Install postgres via your package manager.
 
-Enable and start the default `postgresql.service`
-
 ## Redis
 
 Install redis via your package manager.
@@ -35,13 +33,19 @@ Enable and start the default `redis.service`
 
 In the following instructions, replace USER with your *nix user name.
 
-1. Give the postgres user rwx on your home folder. We used `sudo setfacl -m u:postgres:rwx /home/USER`.
-2. Set up your user for postgres db creation with `sudo -u postgres createuser USER --createdb`.
-3. Navigate to the root of this repo
+1. Add yourself to the postgres group with `sudo usermod -a -G postgres USER`. You'll need to log out and back in to
+update your groups.
+2. Run `sudo mkdir /run/postgresql` to create said folder if it doesn't exist.
+3. Run `sudo chown postgres:postgres /run/postgresql` to change the owner to postgres.
+4. Run `sudo chmod g+w /run/postgresql` to allow `postgres` group members to write to the folder.
+1. Navigate to the root of this repo.
+2. Set up a local DB cluster with `pg_ctl -D data/postgres15 initdb -o '-U mastodon --auth-host=trust'`.
+3. Run it with `pg_ctl -D data/postgres15 start`.
 4. Run `bundle config set --local path 'vendor/bundle`. This will store the all the ruby gems locally so that we can
 avoid interfering with system config.
 5. Run `bundle install`.
 6. Run `yarn install`.
+1. Run `export $(grep -v '^#' .env.dev | xargs)` to source in our dev vars. You may want to alias this.
 7. Run `bundle exec rake db:setup`. If this fails, you can use `bundle exec rake db:reset` to forcibly regenerate it.
 
 ## Getting it running
@@ -49,10 +53,10 @@ avoid interfering with system config.
 To make our lives easier, we'll use `foreman` to run the site, so use `gem install foreman` to get that going.
 
 Then:
-1. Run `export RAILS\_ENV=development` and `export NODE\_ENV=development`.
+1. Run `export RAILS_ENV=development` and `export NODE_ENV=development`.
   a. Put these in your shell's .rc, or a script you can source if you want to skip this step in the future.
 2. Run `bundle exec rake assets:precompile`.
-  a. If this explodes, complaining about `Hash`, you'll need to `export NODE\_OPTIONS=--openssl-legacy-provider`. Same
+  a. If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`. Same
      deal as the above.
   b. After doing this, you will need to `bundle exec rake assets:clobber` and then re-run
   `bundle exec rake assets:precompile`.
@@ -63,7 +67,7 @@ Then:
 
 ## RubyVM/DebugInspector Issues
 
-Still unable to fix. Circumvent by removing `better\_errors` and `binding\_of\_caller` from Gemfile.
+Still unable to fix. Circumvent by removing `better_errors` and `binding_of_caller` from Gemfile.
 Happy to troubleshoot with someone better with Ruby than us >_<'/.
 
 ## Webpack Issues
