@@ -12,6 +12,9 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
+# Ignore the dev postgres db we created.
+/data/postgres15/*
+
 # Ignore all logfiles and tempfiles.
 .eslintcache
 /log/*
