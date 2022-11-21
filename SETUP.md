@@ -29,7 +29,7 @@ Install redis via your package manager.
 
 Enable and start the default `redis.service`
 
-## Pre-Work
+## Setting up the Environment
 
 In the following instructions, replace USER with your *nix user name.
 
@@ -48,7 +48,7 @@ avoid interfering with system config.
 1. Run `export $(grep -v '^#' .env.dev | xargs)` to source in our dev vars. You may want to alias this.
 7. Run `bundle exec rake db:setup`. If this fails, you can use `bundle exec rake db:reset` to forcibly regenerate it.
 
-## Getting it running
+## Running Mastodon
 
 To make our lives easier, we'll use `foreman` to run the site, so use `gem install foreman` to get that going.
 
