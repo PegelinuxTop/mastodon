@@ -38,7 +38,7 @@ In the following instructions, replace USER with your *nix user name.
 1. Give the postgres user rwx on your home folder. We used `sudo setfacl -m u:postgres:rwx /home/USER`.
 2. Set up your user for postgres db creation with `sudo -u postgres createuser USER --createdb`.
 3. Navigate to the root of this repo
-4. Run `bundle config set --local path 'vendor/bundle'. This will store the all the ruby gems locally so that we can
+4. Run `bundle config set --local path 'vendor/bundle`. This will store the all the ruby gems locally so that we can
 avoid interfering with system config.
 5. Run `bundle install`.
 6. Run `yarn install`.
