@@ -6,24 +6,24 @@ You have a package manager, and your system is systemd-based.
 
 ## Prerequisites
 
-## Nodejs
+### Nodejs
 
 Install nodejs via your package manager. We used v19.1.0 for this setup.
 
-## Ruby
+### Ruby
 
 Install ruby via your package manager of choice.
 
-## Ruby Extras
+### Ruby Extras
 
 Your distro may package `bundle` and `irb` in separate packages (Arch does). If they are, install them too.
 On Arch these are `ruby-bundler` and `ruby-irb`.
 
-## PostGreSQL
+### PostGreSQL
 
 Install postgres via your package manager.
 
-## Redis
+### Redis
 
 Install redis via your package manager.
 
