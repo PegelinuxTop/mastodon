@@ -74,9 +74,9 @@ Try:
 
 If this doesn't help, try:
 
-1. yarn add webpack
-2. git restore package.json yarn.lock
-3. yarn install
+1. `yarn add webpack`
+2. `git restore package.json yarn.lock`
+3. `yarn install`
 
 Then re-run `foreman`. No. We have no idea why this worked.
 
