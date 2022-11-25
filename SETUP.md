@@ -1,62 +1,117 @@
 # Setting up a dev environment
 
-## Assumptions
-
-You have a package manager, and your system is systemd-based.
-
 ## Prerequisites
 
-### Nodejs
+Mastodon development requires the following:
 
-Install nodejs via your package manager. We used v19.1.0 for this setup.
+- Ruby 3.0
+- Ruby gems:
+  - `bundler`
+  - `irb`
+  - `foreman`
+- NodeJS v18 (LTS)
+- NPM packages:
+  - `yarn`
+- Postgres
+- Redis
 
-### Ruby
+### macOS
 
-Install ruby via your package manager of choice.
+First, make sure you have Homebrew installed. Follow the instructions at
+[brew.sh](https://brew.sh).
 
-### Ruby Extras
+Run the following to install all necessary packages:
+```
+brew install ruby@3.0 foreman node yarn postgresql redis
+```
 
-Your distro may package `bundle` and `irb` in separate packages (Arch does). If they are, install them too.
-On Arch these are `ruby-bundler` and `ruby-irb`.
+Ruby 3.0 is **keg-only** by default. Follow the instructions in the **Caveat**
+to add it to your path.
 
-### PostGreSQL
+### Linux
 
-Install postgres via your package manager.
+We will assume that you know how to locate the correct packages for your distro.
+That said, some distros package `bundler` and `irb` separately. Make sure that
+you also install these.
 
-### Redis
+On Arch, you will need:
 
-Install redis via your package manager.
+- `ruby`
+- `ruby-bundler`
+- `ruby-irb`
+- `ruby-foreman`
 
-Enable and start the default `redis.service`
+### Windows
 
-## Setting up the Environment
+Unfortunately, none of the authors use Windows. Contributions welcome!
 
-In the following instructions, replace USER with your *nix user name.
+## Database
 
-1. Add yourself to the postgres group with `sudo usermod -a -G postgres USER`. You'll need to log out and back in to
-update your groups.
-2. Navigate to the root of this repo.
-2. Set up a local DB cluster with `pg_ctl -D data/postgres15 initdb -o '-U mastodon --auth-host=trust'`.
-3. Add the line `unix_socket_directories='.'` to `data/postgres15/postgresql.conf`.
-4. Run the DB with `pg_ctl -D data/postgres15 start`.
-5. Run `bundle config set --local path 'vendor/bundle`. This will store the all the ruby gems locally so that we can
-   avoid interfering with system config.
-6. Run `bundle install`.
-7. Run `yarn install`.
-8. Run `bundle exec rake db:setup`. If this fails, you can use `bundle exec rake db:reset` to forcibly regenerate it.
+In the root of this repository, go through the following script:
+```sh
+# Create a folder for local data
+mkdir -p data
+
+# Set up a local database
+pg_ctl -D data/postgres initdb -o '-U mastodon --auth-host=trust'
+
+# Use the data/postgres folder for the DB connection unix socket
+#
+# If you don't know what that means, it's just a way for Mastodon to communicate
+# with a database on the same machine efficiently.
+#
+# See: https://manpages.ubuntu.com/manpages/jammy/man7/unix.7.html
+echo 'unix_socket_directories = .' >> data/postgres/postgresql.conf
+
+# Start the database
+pg_ctl -D data/postgres start --silent
+```
+
+## Redis
+
+In the root of this repository, run the following:
+```sh
+# Start Redis
+redis-server ./redis-dev.conf
+
+# [Optional] Stop Redis
+kill "$(cat ./data/redis/redis-dev.pid)"
+```
+
+## Ruby
+
+```sh
+export RAILS_ENV=development
+
+# Bundle installs all Ruby gems globally by default, which might cause problems.
+bundle config set --local path 'vendor/bundle'
+
+# [Apple Silicon] If using macOS on Apple Silicon, run the following:
+# bundle config build.idn-ruby -- --with-idn-dir="$(brew --prefix libidn)"
+
+# Install dependencies using bundle (Ruby) and yarn (JS)
+bundle install
+yarn install
+
+# Setup the database using the pre-defined Rake task
+#
+# Rake is a command runner for Ruby projects. The `bundle exec` ensures that
+# we use the version of Rake that this project requires.
+bundle exec rake db:setup
+
+# [Optional] If that fails, run the following and try again:
+# bundle exec rake db:reset
+```
 
 ## Running Mastodon
 
-1. To make our lives easier, we'll use `foreman` to run the site, so use `gem install foreman`.
-2. Run `export RAILS_ENV=development` and `export NODE_ENV=development`.
+1. Run `export RAILS_ENV=development NODE_ENV=development`.
   a. Put these in your shell's .rc, or a script you can source if you want to skip this step in the future.
-3. Run `bundle exec rake assets:precompile`.
-  a. If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`. Same
-     deal as the above.
-  b. After doing this, you will need to `bundle exec rake assets:clobber` and then re-run
+2. Run `bundle exec rake assets:precompile`.
+  a. If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`.
+  b. After doing this, you will need to run `bundle exec rake assets:clobber` and then re-run
   `bundle exec rake assets:precompile`.
-4. Run `foreman start`
-
+3. Run `foreman start`
 
 # Updates/Troubleshooting
 
