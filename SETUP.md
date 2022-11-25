@@ -40,6 +40,8 @@ On Arch, you will need:
 - `ruby-bundler`
 - `ruby-irb`
 - `ruby-foreman`
+- `redis`
+- `postgresql`
 
 ### Windows
 
@@ -71,6 +73,9 @@ pg_ctl -D data/postgres start --silent
 
 In the root of this repository, run the following:
 ```sh
+# Create a folder for redis data
+mkdir -p data/redis
+
 # Start Redis
 redis-server ./redis-dev.conf
 
