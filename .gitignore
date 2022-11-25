@@ -5,9 +5,7 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 # Ignore local dotenv overrides
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
 # Ignore bundler config and downloaded libraries.
 /.bundle
@@ -17,8 +15,8 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
-# Ignore the dev postgres db we created.
-/data/postgres*/*
+# Ignore local data directory
+/data
 
 # Ignore all logfiles and tempfiles.
 .eslintcache
