@@ -1,6 +1,6 @@
-#  Contributing to Mastodon Glitch Edition  #
+#  Contributing to Mastodon Glitch+Treehouse Edition  #
 
-Thank you for your interest in contributing to the `glitch-soc` project!
+Thank you for your interest in contributing to the **Treehouse Mastodon** project!
 Here are some guidelines, and ways you can help.
 
 >   (This document is a bit of a work-in-progress, so please bear with us.
@@ -8,14 +8,19 @@ Here are some guidelines, and ways you can help.
 
 ##  Planning  ##
 
-Right now a lot of the planning for this project takes place in our development Discord, or through GitHub Issues and Projects.
+Right now a lot of the planning for this project takes place in the `#fediverse`
+channel of the Treehouse Discord, or through Gitea Issues.
+
 We're working on ways to improve the planning structure and better solicit feedback, and if you feel like you can help in this respect, feel free to give us a holler.
 
 ##  Documentation  ##
 
-The documentation for this repository is available at [`glitch-soc/docs`](https://github.com/glitch-soc/docs) (online at [glitch-soc.github.io/docs/](https://glitch-soc.github.io/docs/)).
-Right now, we've mostly focused on the features that make this fork different from upstream in some manner.
-Adding screenshots, improving descriptions, and so forth are all ways to help contribute to the project even if you don't know any code.
+The upstream Glitch documentation for this repository is available at [`glitch-soc/docs`](https://github.com/glitch-soc/docs) (online at [glitch-soc.github.io/docs/](https://glitch-soc.github.io/docs/)).
+
+##  Setup  ##
+
+For a some-batteries-required guide to setting up a development environment for this repository, read Rin's excellent
+[SETUP.md](https://gitea.treehouse.systems/treehouse/mastodon/src/branch/main/SETUP.md).
 
 ##  Frontend Development  ##
 

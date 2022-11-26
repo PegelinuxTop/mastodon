@@ -1,14 +1,20 @@
-#  Mastodon Glitch Edition  #
+#  Mastodon Glitch+Treehouse Edition  #
 
->   Now with automated deploys!
+> Now with bunny ears!
 
-[![Build Status](https://img.shields.io/circleci/project/github/glitch-soc/mastodon.svg)][circleci]
-[![Code Climate](https://img.shields.io/codeclimate/maintainability/glitch-soc/mastodon.svg)][code_climate]
+So here's the deal: we all work on this code, and anyone who uses that does so absolutely at their own risk. Can you dig it?
 
-[circleci]: https://circleci.com/gh/glitch-soc/mastodon
-[code_climate]: https://codeclimate.com/github/glitch-soc/mastodon
+Specifically, this fork-of-a-fork is intended for Treehouse use only. Unless
+otherwise communicated, we will not put effort into supporting other deployments
+or upstreaming our patches.
 
-So here's the deal: we all work on this code, and anyone who uses that does so absolutely at their own risk. can you dig it?
+## Links
 
-- You can view documentation for this project at [glitch-soc.github.io/docs/](https://glitch-soc.github.io/docs/).
-- And contributing guidelines are available [here](CONTRIBUTING.md) and [here](https://glitch-soc.github.io/docs/contributing/).
+- You can view upstream Glitch's documentation for this project at [glitch-soc.github.io/docs/](https://glitch-soc.github.io/docs/).
+- Contributing guidelines are available [here](CONTRIBUTING.md).
+
+## Known Deployments
+
+- Treehouse Social: [social.treehouse.systems](https://social.treehouse.systems)
+- VT Social: [vt.social](https://vt.social)
+- Unstable Systems: [unstable.systems](https://unstable.systems)
