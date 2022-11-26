@@ -18,7 +18,7 @@ const env = process.env.NODE_ENV || 'development';
 const alwaysRequireAuth = process.env.LIMITED_FEDERATION_MODE === 'true' || process.env.WHITELIST_MODE === 'true' || process.env.AUTHORIZED_FETCH === 'true';
 
 dotenv.config({
-  path: env === 'production' ? '.env.production' : '.env',
+  path: env === 'production' || env === 'development' ? `.env.${env}` : '.env',
 });
 
 log.level = process.env.LOG_LEVEL || 'verbose';
