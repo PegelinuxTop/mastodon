@@ -33,11 +33,11 @@ module Mastodon
     end
 
     def repository
-      ENV.fetch('GITHUB_REPOSITORY', 'glitch-soc/mastodon')
+      ENV.fetch('GIT_REPOSITORY', false) || ENV.fetch('GITHUB_REPOSITORY', false) || 'treehouse/mastodon'
     end
 
     def source_base_url
-      ENV.fetch('SOURCE_BASE_URL', "https://github.com/#{repository}")
+      ENV.fetch('SOURCE_BASE_URL', "https://gitea.treehouse.systems/#{repository}")
     end
 
     # specify git tag or commit hash here
@@ -46,8 +46,13 @@ module Mastodon
     end
 
     def source_url
-      if source_tag
-        "#{source_base_url}/tree/#{source_tag}"
+      if source_tag && source_base_url =~ /gitea/
+        suffix = if !str[/\H/]
+                   "commit/#{source_tag}"
+                 else
+                   "branch/#{source_tag}"
+                 end
+        "#{source_base_url}/#{suffix}"
       else
         source_base_url
       end
