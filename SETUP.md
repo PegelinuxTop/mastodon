@@ -17,31 +17,29 @@ Mastodon development requires the following:
 
 ### macOS
 
-First, make sure you have Homebrew installed. Follow the instructions at
-[brew.sh](https://brew.sh).
+First, make sure you have Homebrew installed. Follow the instructions at [brew.sh](https://brew.sh).
 
 Run the following to install all necessary packages:
 ```
 brew install ruby@3.0 foreman node yarn postgresql redis
 ```
 
-Ruby 3.0 is **keg-only** by default. Follow the instructions in the **Caveat**
-to add it to your path.
+Ruby 3.0 is **keg-only** by default. Follow the instructions in the **Caveat** to add it to your path.
 
 ### Linux
 
-We will assume that you know how to locate the correct packages for your distro.
-That said, some distros package `bundler` and `irb` separately. Make sure that
-you also install these.
+We will assume that you know how to locate the correct packages for your distro. That said, some distros package `bundler` and `irb` separately. Make sure that you also install these.
 
 On Arch, you will need:
-
 - `ruby`
 - `ruby-bundler`
 - `ruby-irb`
 - `ruby-foreman`
 - `redis`
 - `postgresql`
+- `yarn`
+- `gmp`
+- `libidn`
 
 ### Windows
 
@@ -80,7 +78,7 @@ mkdir -p data/redis
 redis-server ./redis-dev.conf
 
 # [Optional] Stop Redis
-kill "$(cat ./data/redis/redis-dev.pid)"
+# kill "$(cat ./data/redis/redis-dev.pid)"
 ```
 
 ## Ruby
@@ -111,11 +109,10 @@ bundle exec rake db:setup
 ## Running Mastodon
 
 1. Run `export RAILS_ENV=development NODE_ENV=development`.
-  a. Put these in your shell's .rc, or a script you can source if you want to skip this step in the future.
+    - Put these in your shell's .rc, or a script you can source if you want to skip this step in the future.
 2. Run `bundle exec rake assets:precompile`.
-  a. If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`.
-  b. After doing this, you will need to run `bundle exec rake assets:clobber` and then re-run
-  `bundle exec rake assets:precompile`.
+    - If this explodes, complaining about `Hash`, you'll need to `export NODE_OPTIONS=--openssl-legacy-provider`.
+    - After doing this, you will need to run `bundle exec rake assets:clobber` and then re-run `bundle exec rake assets:precompile`.
 3. Run `foreman start`
 
 # Updates/Troubleshooting
@@ -123,21 +120,24 @@ bundle exec rake db:setup
 ## RubyVM/DebugInspector Issues
 
 Still unable to fix. Circumvent by removing `better_errors` and `binding_of_caller` from Gemfile.
+
 Happy to troubleshoot with someone better with Ruby than us >_<'/.
 
 ## Webpack Issues
-If Webpack compalins about being unable to find some assets or locales:
-Try:
 
+If Webpack compalins about being unable to find some assets or locales:
+
+Try:
 1. `rm -rf node_modules`
 2. `yarn install`
 
 If this doesn't help, try:
-
 1. `yarn add webpack`
 2. `git restore package.json yarn.lock`
 3. `yarn install`
 
-Then re-run `foreman`. No. We have no idea why this worked.
+Then re-run `foreman start`. No. We have no idea why this worked.
+
+# Need Help?
 
 If the above instructions don't work, please contact @Rin here, or @tammy@social.treehouse.systems.
