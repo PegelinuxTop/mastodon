@@ -10,6 +10,10 @@ POSTGRES_PID_FILE = POSTGRES_DIR / 'postmaster.pid'
 REDIS_DIR = DATA_DIR / 'redis'
 REDIS_PID_FILE = REDIS_DIR / 'redis-dev.pid'
 
+def divider
+  puts '=========='
+end
+
 def get_pid(pid_file)
   return false unless File.file?(pid_file)
   pid = File.read(pid_file).to_i
@@ -58,9 +62,9 @@ namespace :deps do
       end
 
       puts 'Starting postgres...'
-      puts '=========='
+      divider
       sh %(pg_ctl -D ./data/postgres start)
-      puts '=========='
+      divider
     end
 
     task :stop do
@@ -69,9 +73,9 @@ namespace :deps do
         next
       end
 
-      puts "Stopping Postgres (pid #{pid})...\n=========="
+      puts "Stopping Postgres (pid #{pid})..."
       sh %(pg_ctl -D ./data/postgres stop)
-      puts '=========='
+      divider
     end
   end
 
@@ -86,9 +90,9 @@ namespace :deps do
       end
 
       puts 'Starting redis...'
-      puts '=========='
+      divider
       sh %(redis-server redis-dev.conf)
-      puts '=========='
+      divider
     end
 
     task :stop do
@@ -97,7 +101,8 @@ namespace :deps do
         next
       end
 
-      puts "Stopping Redis (pid #{pid})...\n=========="
+      puts "Stopping Redis (pid #{pid})..."
+      divider
       Process.kill(:TERM, pid)
     end
   end
