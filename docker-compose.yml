@@ -66,8 +66,16 @@ services:
     healthcheck:
       # prettier-ignore
       test: ['CMD-SHELL', 'wget -q --spider --proxy=off localhost:3000/health || exit 1']
-    ports:
-      - '127.0.0.1:3000:3000'
+    expose:
+      - 3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.web.rule=Host(`social-dev.treehouse.systems`)
+      - traefik.http.routers.web.tls=true
+      - traefik.http.routers.web.tls.certresolver=le
+      - traefik.http.routers.web.tls.domains[0].main=social-dev.treehouse.systems
+      - traefik.http.routers.web.entrypoints=websecure
+      - traefik.http.services.web.loadbalancer.server.port=3000
     depends_on:
       - db
       - redis
@@ -87,8 +95,16 @@ services:
     healthcheck:
       # prettier-ignore
       test: ['CMD-SHELL', 'wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1']
-    ports:
-      - '127.0.0.1:4000:4000'
+    expose:
+      - 4000
+    labels:
+      - traefik.enable=true
+      - 'traefik.http.routers.streaming.rule=Host(`social-dev.treehouse.systems`) && PathPrefix(`/api/v1/streaming/`)'
+      - traefik.http.routers.streaming.tls=true
+      - traefik.http.routers.streaming.tls.certresolver=le
+      - traefik.http.routers.streaming.tls.domains[0].main=social-dev.treehouse.systems
+      - traefik.http.routers.streaming.entrypoints=websecure
+      - traefik.http.services.streaming.loadbalancer.server.port=4000
     depends_on:
       - db
       - redis
