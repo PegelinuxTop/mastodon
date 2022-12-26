@@ -15,13 +15,13 @@ import AttachmentList from 'flavours/glitch/components/attachment_list';
 const messages = defineMessages({
   cancel: {
     defaultMessage: 'Cancel',
-    id: 'reply_indicator.cancel',
+    id: 'quote_indicator.cancel',
   },
 });
 
 
 export default @injectIntl
-class ReplyIndicator extends ImmutablePureComponent {
+class QuoteIndicator extends ImmutablePureComponent {
 
   static propTypes = {
     status: ImmutablePropTypes.map,
@@ -50,10 +50,10 @@ class ReplyIndicator extends ImmutablePureComponent {
 
     //  The result.
     return (
-      <article className='reply-indicator'>
-        <header className='reply-indicator__header'>
+      <article className='quote-indicator'>
+        <header className='quote-indicator__header'>
           <IconButton
-            className='reply-indicator__cancel'
+            className='quote-indicator__cancel'
             icon='times'
             onClick={this.handleClick}
             title={intl.formatMessage(messages.cancel)}
@@ -61,7 +61,7 @@ class ReplyIndicator extends ImmutablePureComponent {
           />
           <Icon
             className='quote-indicator__cancel icon-button inverted'
-            id='reply' />
+            id='quote-right' />
           {account && (
             <AccountContainer
               id={account}
@@ -70,7 +70,7 @@ class ReplyIndicator extends ImmutablePureComponent {
           )}
         </header>
         <div
-          className='reply-indicator__content translate'
+          className='quote-indicator__content icon-button translate'
           dangerouslySetInnerHTML={{ __html: content || '' }}
         />
         {attachments.size > 0 && (

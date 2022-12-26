@@ -77,6 +77,11 @@
     }
   }
 
+  .status__quote {
+    padding-bottom: 0.5em;
+  }
+
+  .status__quote,
   .status__content__text,
   .e-content {
     overflow: hidden;
@@ -121,6 +126,11 @@
 
     em, i {
       font-style: italic;
+    }
+
+    i[role=img] {
+      font-style: normal;
+      padding-right: 0.25em;
     }
 
     sub {
@@ -686,6 +696,7 @@
 }
 
 a.status__display-name,
+.quote-indicator__display-name,
 .reply-indicator__display-name,
 .detailed-status__display-name,
 .account__display-name {
