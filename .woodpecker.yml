@@ -1,13 +1,14 @@
 pipeline:
   build:
-    image: docker
+    image: docker:rc-git
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
+      - docker version
       - docker image build -f Dockerfile . -t gitea.treehouse.systems/treehouse/mastodon:latest
 
   push:
-    image: docker
+    image: docker:rc-git
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
