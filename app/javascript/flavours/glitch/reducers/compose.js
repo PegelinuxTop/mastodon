@@ -153,16 +153,16 @@ function apiStatusToTextMentions (state, status) {
   }
 
   return set.union(status.mentions.filter(
-    mention => mention.id !== me
+    mention => mention.id !== me,
   ).map(
-    mention => `@${mention.acct} `
+    mention => `@${mention.acct} `,
   )).join('');
 }
 
 function apiStatusToTextHashtags (state, status) {
   const text = unescapeHTML(status.content);
   return ImmutableOrderedSet([]).union(recoverHashtags(status.tags, text).map(
-    (name) => `#${name} `
+    (name) => `#${name} `,
   )).join('');
 }
 
@@ -179,7 +179,7 @@ function clearAll(state) {
     map.set('quote_id', null);
     map.update(
       'advanced_options',
-      map => map.mergeWith(overwrite, state.get('default_advanced_options'))
+      map => map.mergeWith(overwrite, state.get('default_advanced_options')),
     );
     map.set('privacy', state.get('default_privacy'));
     map.set('sensitive', state.get('default_sensitive'));
@@ -206,7 +206,7 @@ function continueThread (state, status) {
     map.set('in_reply_to', status.id);
     map.update(
       'advanced_options',
-      map => map.merge(new ImmutableMap({ do_not_federate: status.local_only }))
+      map => map.merge(new ImmutableMap({ do_not_federate: status.local_only })),
     );
     map.set('privacy', status.visibility);
     map.set('sensitive', false);
@@ -460,6 +460,7 @@ export default function compose(state = initialState, action) {
     return updateWithReply(state, action);
   case COMPOSE_REPLY_CANCEL:
     state = state.setIn(['advanced_options', 'threaded_mode'], false);
+    // fall through
   case COMPOSE_QUOTE_CANCEL:
   case COMPOSE_RESET:
     return state.withMutations(map => {
@@ -474,7 +475,7 @@ export default function compose(state = initialState, action) {
       map.set('poll', null);
       map.update(
         'advanced_options',
-        map => map.mergeWith(overwrite, state.get('default_advanced_options'))
+        map => map.mergeWith(overwrite, state.get('default_advanced_options')),
       );
       map.set('idempotencyKey', uuid());
     });
@@ -517,6 +518,7 @@ export default function compose(state = initialState, action) {
         return item;
       }));
   case INIT_MEDIA_EDIT_MODAL:
+  {
     const media =  state.get('media_attachments').find(item => item.get('id') === action.id);
     return state.set('media_modal', ImmutableMap({
       id: action.id,
@@ -525,6 +527,7 @@ export default function compose(state = initialState, action) {
       focusY: media.getIn(['meta', 'focus', 'y'], 0),
       dirty: false,
     }));
+  }
   case COMPOSE_CHANGE_MEDIA_DESCRIPTION:
     return state.setIn(['media_modal', 'description'], action.description).setIn(['media_modal', 'dirty'], true);
   case COMPOSE_CHANGE_MEDIA_FOCUS:
@@ -580,6 +583,7 @@ export default function compose(state = initialState, action) {
   case COMPOSE_DOODLE_SET:
     return state.mergeIn(['doodle'], action.options);
   case REDRAFT:
+  {
     const do_not_federate = !!action.status.get('local_only');
     let text = action.raw_text || unescapeHTML(expandMentions(action.status));
     if (do_not_federate) text = text.replace(/ ?👁\ufe0f?\u200b?$/, '');
@@ -596,7 +600,7 @@ export default function compose(state = initialState, action) {
       map.set('language', action.status.get('language'));
       map.update(
         'advanced_options',
-        map => map.merge(new ImmutableMap({ do_not_federate }))
+        map => map.merge(new ImmutableMap({ do_not_federate })),
       );
       map.set('id', null);
 
@@ -620,6 +624,7 @@ export default function compose(state = initialState, action) {
         }));
       }
     });
+  }
   case COMPOSE_SET_STATUS:
     return state.withMutations(map => {
       map.set('id', action.status.get('id'));
