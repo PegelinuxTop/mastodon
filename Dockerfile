@@ -94,6 +94,7 @@ WORKDIR /opt/mastodon
 # TODO(kaniini): Yarn install is invoked to allow us to pre-patch emoji-mart
 # we should set up a deviation instead.
 RUN yarn install && cp ./emoji_data/all.json ./node_modules/emoji-mart/data/all.json && \
+    OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails branding:generate && \
 	OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails assets:precompile && \
 	yarn cache clean
 
