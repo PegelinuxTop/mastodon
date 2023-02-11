@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /opt/mastodon
-COPY Gemfile* package.json yarn.lock emoji_data /opt/mastodon/
+COPY Gemfile* package.json yarn.lock /opt/mastodon/
 
 # hadolint ignore=DL3008
 RUN apt-get update && \
@@ -37,8 +37,9 @@ RUN apt-get update && \
     bundle config set --local without 'development test' && \
     bundle config set silence_root_warning true && \
     bundle install -j"$(nproc)" && \
-    yarn install --pure-lockfile --network-timeout 600000 && \
-    cp ./emoji_data/all.json ./node_modules/emoji-mart/data/all.json
+    yarn install --pure-lockfile --network-timeout 600000
+    
+COPY ./emoji_data/all.json /opt/mastodon/node_modules/emoji-mart/data/all.json
 
 FROM node:${NODE_VERSION}
 
