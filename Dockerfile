@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /opt/mastodon
-COPY Gemfile* package.json yarn.lock /opt/mastodon/
+COPY Gemfile* package.json yarn.lock emoji_data /opt/mastodon/
 
 # hadolint ignore=DL3008
 RUN apt-get update && \
