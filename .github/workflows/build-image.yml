@@ -42,7 +42,6 @@ jobs:
       - uses: docker/build-push-action@v4
         with:
           context: .
-          provenance: false
           platforms: linux/amd64
           builder: ${{ steps.buildx.outputs.name }}
           push: ${{ github.event_name != 'pull_request' }}
