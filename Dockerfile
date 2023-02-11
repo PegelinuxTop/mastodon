@@ -37,7 +37,8 @@ RUN apt-get update && \
     bundle config set --local without 'development test' && \
     bundle config set silence_root_warning true && \
     bundle install -j"$(nproc)" && \
-    yarn install --pure-lockfile --network-timeout 600000
+    yarn install --pure-lockfile --network-timeout 600000 && \
+    cp ./emoji_data/all.json ./node_modules/emoji-mart/data/all.json
 
 FROM node:${NODE_VERSION}
 
@@ -94,8 +95,7 @@ WORKDIR /opt/mastodon
 # Precompile assets
 # TODO(kaniini): Yarn install is invoked to allow us to pre-patch emoji-mart
 # we should set up a deviation instead.
-RUN yarn install && cp ./emoji_data/all.json ./node_modules/emoji-mart/data/all.json && \
-    OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails branding:generate && \
+RUN OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails branding:generate && \
 	OTP_SECRET=precompile_placeholder SECRET_KEY_BASE=precompile_placeholder rails assets:precompile && \
 	yarn cache clean
 
