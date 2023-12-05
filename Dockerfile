@@ -33,6 +33,7 @@ RUN apt-get update && \
         libreadline8 \
         python3 \
         shared-mime-info && \
+    bundle lock --update json-canonicalization && \
     bundle config set --local deployment 'true' && \
     bundle config set --local without 'development test' && \
     bundle config set silence_root_warning true && \
