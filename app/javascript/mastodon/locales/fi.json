@@ -1,6 +1,6 @@
 {
   "about.blocks": "Moderoidut palvelimet",
-  "about.contact": "Ota yhteyttä:",
+  "about.contact": "Ota yhteys:",
   "about.disclaimer": "Mastodon on vapaa avoimen lähdekoodin ohjelmisto ja Mastodon gGmbH:n tavaramerkki.",
   "about.domain_blocks.no_reason_available": "Syytä ei ole ilmoitettu",
   "about.domain_blocks.preamble": "Mastodonin avulla voidaan yleensä tarkastella minkä tahansa fediversumiin kuuluvan palvelimen sisältöä ja vuorovaikuttaa eri palvelinten käyttäjien kanssa. Nämä ovat tälle palvelimelle määritetyt poikkeukset.",
@@ -222,6 +222,7 @@
   "emoji_button.search_results": "Hakutulokset",
   "emoji_button.symbols": "Symbolit",
   "emoji_button.travel": "Matkailu ja paikat",
+  "empty_column.account_hides_collections": "Käyttäjä on päättänyt olla julkaisematta näitä tietoja",
   "empty_column.account_suspended": "Tili jäädytetty",
   "empty_column.account_timeline": "Ei viestejä täällä.",
   "empty_column.account_unavailable": "Profiilia ei löydy",
