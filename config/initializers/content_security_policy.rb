@@ -33,13 +33,13 @@ def sso_host
 end
 
 unless Rails.env.development?
-  assets_host = Rails.configuration.action_controller.asset_host || "https://#{ENV['WEB_DOMAIN'] || ENV['LOCAL_DOMAIN']}"
+  assets_host = Rails.configuration.action_controller.asset_host || "https://#{ENV['WEB_DOMAIN'] || Rails.configuration.x.local_domain}"
   data_hosts = [assets_host]
 
   if ENV['S3_ENABLED'] == 'true' || ENV['AZURE_ENABLED'] == 'true'
     attachments_host = host_to_url(ENV['S3_ALIAS_HOST'] || ENV['S3_CLOUDFRONT_HOST'] || ENV['AZURE_ALIAS_HOST'] || ENV['S3_HOSTNAME'] || "s3-#{ENV['S3_REGION'] || 'us-east-1'}.amazonaws.com")
   elsif ENV['SWIFT_ENABLED'] == 'true'
-    attachments_host = ENV['SWIFT_OBJECT_URL']
+    attachments_host = ENV.fetch('SWIFT_OBJECT_URL')
     attachments_host = "https://#{Addressable::URI.parse(attachments_host).host}"
   else
     attachments_host = nil
@@ -84,7 +84,7 @@ end
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
 # Rails.application.config.content_security_policy_report_only = true
 
-Rails.application.config.content_security_policy_nonce_generator = ->request { SecureRandom.base64(16) }
+Rails.application.config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
 
 Rails.application.config.content_security_policy_nonce_directives = %w(style-src)
 
@@ -109,7 +109,7 @@ Rails.application.reloader.to_prepare do
       p.worker_src      :none
     end
 
-    LetterOpenerWeb::LettersController.after_action do |p|
+    LetterOpenerWeb::LettersController.after_action do
       request.content_security_policy_nonce_directives = %w(script-src)
     end
   end
