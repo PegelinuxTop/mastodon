@@ -374,6 +374,7 @@ sk:
       view: Ukáž blokovanie domén
     email_domain_blocks:
       add_new: Pridaj nový
+      allow_registrations_with_approval: Povoľ registrovanie so schválením
       created_msg: Emailová doména bola úspešne pridaná do zoznamu zakázaných
       delete: Vymaž
       dns:
@@ -547,6 +548,7 @@ sk:
           delete_html: Vymaž pohoršujúce príspevky
           mark_as_sensitive_html: Označ médiá pohoršujúcich príspevkov za chúlostivé
         close_report: 'Označ hlásenie #%{id} za vyriešené'
+      target_origin: Pôvod nahláseného účtu
       title: Hlásenia
       unassign: Odober
       unknown_action_msg: 'Neznáma akcia: %{action}'
@@ -574,6 +576,7 @@ sk:
         manage_announcements: Spravuj oboznámenia
         manage_appeals: Spravuj námietky
         manage_blocks: Spravuj blokovania
+        manage_custom_emojis: Spravuj vlastné emotikony
         manage_federation: Spravuj federáciu
         manage_invites: Spravuj pozvánky
         manage_reports: Spravuj hlásenia
@@ -634,6 +637,7 @@ sk:
       application: Aplikácia
       back_to_account: Späť na účet
       batch:
+        remove_from_report: Vymaž z hlásenia
         report: Hlásenie
       deleted: Vymazané
       favourites: Obľúbené
@@ -696,6 +700,7 @@ sk:
         title: Populárne príspevky
       tags:
         dashboard:
+          tag_accounts_measure: unikátnych použití
           tag_servers_measure: iné servery
           tag_uses_measure: užívateľov celkovo
         not_usable: Nemôže byť použitý
