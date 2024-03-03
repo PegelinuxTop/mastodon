@@ -9,7 +9,7 @@ defaults: &defaults
   site_terms: ''
   site_contact_username: ''
   site_contact_email: ''
-  registrations_mode: 'open'
+  registrations_mode: 'none'
   profile_directory: true
   closed_registrations_message: ''
   timeline_preview: false
@@ -22,6 +22,7 @@ defaults: &defaults
   trends_as_landing_page: true
   trendable_by_default: false
   trending_status_cw: true
+  visible_reactions: 6
   hide_followers_count: false
   reserved_usernames:
     - admin
@@ -45,6 +46,8 @@ defaults: &defaults
   require_invite_text: false
   backups_retention_period: 7
   captcha_enabled: false
+  reject_pattern: ''
+  reject_blurhash: ''
 
 development:
   <<: *defaults

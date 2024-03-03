@@ -38,6 +38,7 @@ const initialState = ImmutableMap({
       follow: false,
       follow_request: false,
       favourite: false,
+      reaction: false,
       reblog: false,
       mention: false,
       poll: false,
@@ -60,6 +61,7 @@ const initialState = ImmutableMap({
       follow: true,
       follow_request: false,
       favourite: true,
+      reaction: true,
       reblog: true,
       mention: true,
       poll: true,
@@ -73,6 +75,7 @@ const initialState = ImmutableMap({
       follow: true,
       follow_request: false,
       favourite: true,
+      reaction: true,
       reblog: true,
       mention: true,
       poll: true,
@@ -80,6 +83,12 @@ const initialState = ImmutableMap({
       update: true,
       'admin.sign_up': true,
       'admin.report': true,
+    }),
+
+    grouping: ImmutableMap({
+      reaction: true,
+      favourite: true,
+      reblog: true,
     }),
   }),
 
@@ -114,7 +123,7 @@ const initialState = ImmutableMap({
   dismissed_banners: ImmutableMap({
     'public_timeline': false,
     'community_timeline': false,
-    'home.explore_prompt': false,
+    'home/follow-suggestions': false,
     'explore/links': false,
     'explore/statuses': false,
     'explore/tags': false,

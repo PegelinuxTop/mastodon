@@ -25,10 +25,7 @@ class BatchedRemoveStatusService < BaseService
       associations: [mentions: :account]
     ).call
 
-    statuses_with_account_conversations.each do |status|
-      status.unlink_from_conversations!
-      unpush_from_direct_timelines(status)
-    end
+    statuses_with_account_conversations.each(&:unlink_from_conversations!)
 
     # We do not batch all deletes into one to avoid having a long-running
     # transaction lock the database, but we use the delete method instead

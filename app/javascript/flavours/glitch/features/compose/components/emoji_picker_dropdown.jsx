@@ -10,6 +10,8 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { supportsPassiveEvents } from 'detect-passive-events';
 import Overlay from 'react-overlays/Overlay';
 
+import MoodIcon from '@/material-icons/400-20px/mood.svg?react';
+import { IconButton } from 'flavours/glitch/components/icon_button';
 import { useSystemEmojiFont } from 'flavours/glitch/initial_state';
 import { assetHost } from 'flavours/glitch/utils/config';
 
@@ -43,8 +45,8 @@ const notFoundFn = () => (
     <Emoji
       emoji='sleuth_or_spy'
       set='twitter'
-      size={32}
-      sheetSize={32}
+      size={33}
+      sheetSize={43}
       backgroundImageFn={backgroundImageFn}
     />
 
@@ -163,6 +165,7 @@ class EmojiPickerMenuImpl extends PureComponent {
     intl: PropTypes.object.isRequired,
     skinTone: PropTypes.number.isRequired,
     onSkinTone: PropTypes.func.isRequired,
+    pickerButtonRef: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -177,7 +180,7 @@ class EmojiPickerMenuImpl extends PureComponent {
   };
 
   handleDocumentClick = e => {
-    if (this.node && !this.node.contains(e.target)) {
+    if (this.node && !this.node.contains(e.target) && !this.props.pickerButtonRef.contains(e.target)) {
       this.props.onClose();
     }
   };
@@ -232,6 +235,7 @@ class EmojiPickerMenuImpl extends PureComponent {
       emoji.native = emoji.colons;
     }
     if (!(event.ctrlKey || event.metaKey)) {
+
       this.props.onClose();
     }
     this.props.onPick(emoji);
@@ -277,8 +281,8 @@ class EmojiPickerMenuImpl extends PureComponent {
     return (
       <div className={classNames('emoji-picker-dropdown__menu', { selecting: modifierOpen })} style={style} ref={this.setRef}>
         <EmojiPicker
-          perLine={8}
-          emojiSize={22}
+          perLine={7}
+          emojiSize={28}
           sheetSize={32}
           custom={buildCustomEmojis(custom_emojis)}
           color=''
@@ -323,7 +327,9 @@ class EmojiPickerDropdown extends PureComponent {
     onPickEmoji: PropTypes.func.isRequired,
     onSkinTone: PropTypes.func.isRequired,
     skinTone: PropTypes.number.isRequired,
-    button: PropTypes.node,
+    title: PropTypes.string,
+    icon: PropTypes.node,
+    disabled: PropTypes.bool,
   };
 
   state = {
@@ -357,7 +363,7 @@ class EmojiPickerDropdown extends PureComponent {
   };
 
   onToggle = (e) => {
-    if (!this.state.loading && (!e.key || e.key === 'Enter')) {
+    if (!this.state.disabled && !this.state.loading && (!e.key || e.key === 'Enter')) {
       if (this.state.active) {
         this.onHideDropdown();
       } else {
@@ -381,23 +387,23 @@ class EmojiPickerDropdown extends PureComponent {
   };
 
   render () {
-    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis, button } = this.props;
-    const title = intl.formatMessage(messages.emoji);
+    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis, title, icon, disabled } = this.props;
     const { active, loading } = this.state;
 
     return (
-      <div className='emoji-picker-dropdown' onKeyDown={this.handleKeyDown}>
-        <div ref={this.setTargetRef} className='emoji-button' title={title} aria-label={title} aria-expanded={active} role='button' onClick={this.onToggle} onKeyDown={this.onToggle} tabIndex={0}>
-          {button || <img
-            className={classNames('emojione', { 'pulse-loading': active && loading })}
-            alt='🙂'
-            src={`${assetHost}/emoji/1f642.svg`}
-          />}
-        </div>
+      <div className='emoji-picker-dropdown' onKeyDown={this.handleKeyDown} ref={this.setTargetRef}>
+        <IconButton
+          title={title || intl.formatMessage(messages.emoji)}
+          aria-expanded={active}
+          active={active}
+          disabled={disabled}
+          iconComponent={icon || MoodIcon}
+          onClick={this.onToggle}
+        />
 
-        <Overlay show={active} placement={'bottom'} target={this.findTarget} popperConfig={{ strategy: 'fixed' }}>
+        <Overlay show={active} placement={'bottom'} flip target={this.findTarget} popperConfig={{ strategy: 'fixed' }}>
           {({ props, placement })=> (
-            <div {...props} style={{ ...props.style, width: 299 }}>
+            <div {...props} style={{ ...props.style }}>
               <div className={`dropdown-animation ${placement}`}>
                 <EmojiPickerMenu
                   custom_emojis={this.props.custom_emojis}
@@ -407,6 +413,7 @@ class EmojiPickerDropdown extends PureComponent {
                   onSkinTone={onSkinTone}
                   skinTone={skinTone}
                   frequentlyUsedEmojis={frequentlyUsedEmojis}
+                  pickerButtonRef={this.target}
                 />
               </div>
             </div>
