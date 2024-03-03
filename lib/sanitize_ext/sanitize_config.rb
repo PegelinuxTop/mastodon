@@ -74,6 +74,15 @@ class Sanitize
       current_node.replace(Nokogiri::XML::Text.new(current_node.text, current_node.document)) unless LINK_PROTOCOLS.include?(scheme)
     end
 
+    UNSUPPORTED_ELEMENTS_TRANSFORMER = lambda do |env|
+      return unless env[:node_name] == 'h6'
+
+      current_node = env[:node]
+
+      current_node.name = 'strong'
+      current_node.wrap('<p></p>')
+    end
+
     MASTODON_STRICT = freeze_config(
       elements: %w(p br span a abbr del pre blockquote code b strong u sub sup i em h1 h2 h3 h4 h5 ul ol li),
 
@@ -81,6 +90,7 @@ class Sanitize
         'a' => %w(href rel class title translate),
         'abbr' => %w(title),
         'span' => %w(class translate),
+
         'blockquote' => %w(cite),
         'ol' => %w(start reversed),
         'li' => %w(value),

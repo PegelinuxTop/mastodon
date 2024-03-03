@@ -28,9 +28,9 @@ const messages = defineMessages({
   pop_in_left: { id: 'settings.pop_in_left', defaultMessage: 'Left' },
   pop_in_right: { id: 'settings.pop_in_right', defaultMessage:  'Right' },
   public: { id: 'privacy.public.short', defaultMessage: 'Public' },
-  unlisted: { id: 'privacy.unlisted.short', defaultMessage: 'Unlisted' },
-  private: { id: 'privacy.private.short', defaultMessage: 'Followers only' },
-  direct: { id: 'privacy.direct.short', defaultMessage: 'Mentioned people only' },
+  unlisted: { id: 'privacy.unlisted.short', defaultMessage: 'Quiet public' },
+  private: { id: 'privacy.private.short', defaultMessage: 'Followers' },
+  direct: { id: 'privacy.direct.short', defaultMessage: 'Specific people' },
 });
 
 class LocalSettingsPage extends PureComponent {
@@ -53,6 +53,14 @@ class LocalSettingsPage extends PureComponent {
           onChange={onChange}
         >
           <FormattedMessage id='settings.show_reply_counter' defaultMessage='Display an estimate of the reply count' />
+        </LocalSettingsPageItem>
+        <LocalSettingsPageItem
+          settings={settings}
+          item={['zoom_emojis_on_hover']}
+          id='mastodon-settings--zoom-on-hover'
+          onChange={onChange}
+        >
+          <FormattedMessage id='settings.zoom_emojis_on_hover' defaultMessage='Zoom in on emojis when hovering over them' />
         </LocalSettingsPageItem>
         <LocalSettingsPageItem
           settings={settings}
@@ -182,6 +190,14 @@ class LocalSettingsPage extends PureComponent {
           onChange={onChange}
         >
           <FormattedMessage id='settings.always_show_spoilers_field' defaultMessage='Always enable the Content Warning field' />
+        </LocalSettingsPageItem>
+        <LocalSettingsPageItem
+          settings={settings}
+          item={['mention_reblogger']}
+          id='mastodon-settings--mention_reblogger'
+          onChange={onChange}
+        >
+          <FormattedMessage id='settings.mention_reblogger' defaultMessage='Mention booster when replying to a boosted post' />
         </LocalSettingsPageItem>
         <LocalSettingsPageItem
           settings={settings}
@@ -398,7 +414,7 @@ class LocalSettingsPage extends PureComponent {
             settings={settings}
             item={['collapsed', 'auto', 'height']}
             id='mastodon-settings--collapsed-auto-height'
-            placeholder='400'
+            placeholder='500'
             onChange={onChange}
             dependsOn={[['collapsed', 'enabled']]}
             dependsOnNot={[['collapsed', 'auto', 'all']]}

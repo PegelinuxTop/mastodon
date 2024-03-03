@@ -9,42 +9,65 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import EditIcon from '@/material-icons/400-24px/edit.svg?react';
 import HomeIcon from '@/material-icons/400-24px/home-fill.svg?react';
 import InsertChartIcon from '@/material-icons/400-24px/insert_chart.svg?react';
+import MoodIcon from '@/material-icons/400-24px/mood.svg?react';
 import PushPinIcon from '@/material-icons/400-24px/push_pin.svg?react';
 import RepeatIcon from '@/material-icons/400-24px/repeat.svg?react';
 import StarIcon from '@/material-icons/400-24px/star-fill.svg?react';
 import { Icon } from 'flavours/glitch/components/icon';
 import { me } from 'flavours/glitch/initial_state';
 
+import NameList from './name_list';
 
 export default class StatusPrepend extends PureComponent {
 
   static propTypes = {
     type: PropTypes.string.isRequired,
-    account: ImmutablePropTypes.map.isRequired,
+    status: ImmutablePropTypes.map.isRequired,
+    accounts: ImmutablePropTypes.listOf(ImmutablePropTypes.map.isRequired),
     parseClick: PropTypes.func.isRequired,
     notificationId: PropTypes.number,
+    children: PropTypes.node,
   };
 
-  handleClick = (e) => {
-    const { account, parseClick } = this.props;
-    parseClick(e, `/@${account.get('acct')}`);
+  handleClick = (acct, e) => {
+    const { status, parseClick } = this.props;
+
+    if (!acct) {
+      const originalAuthor = status.getIn(['reblog', 'account', 'acct'], status.getIn(['account', 'acct']));
+      const originalStatusId = status.getIn(['reblog', 'id'], status.get('id'));
+      parseClick(e, `/@${originalAuthor}/${originalStatusId}` + this.getUrlSuffix());
+    } else {
+      parseClick(e, `/@${acct.get('acct')}`);
+    }
+  };
+
+  getUrlSuffix = () => {
+    const { type } = this.props;
+    switch (type) {
+    case 'reblog':
+      return '/reblogs';
+    case 'favourite':
+      return '/favourites';
+    default:
+      return '';
+    }
   };
 
   Message = () => {
-    const { type, account } = this.props;
-    let link = (
-      <a
-        onClick={this.handleClick}
-        href={account.get('url')}
-        className='status__display-name'
-      >
-        <b
-          dangerouslySetInnerHTML={{
-            __html : account.get('display_name_html') || account.get('username'),
-          }}
+    const { type, accounts, status } = this.props;
+
+    const viewMoreHref = status.get('url') + this.getUrlSuffix();
+
+    const linkifiedAccounts = (
+      <span>
+        <NameList
+          accounts={accounts}
+          viewMoreHref={viewMoreHref}
+          onClick={this.handleClick}
         />
-      </a>
+      </span>
     );
+
     switch (type) {
     case 'featured':
       return (
@@ -55,15 +78,23 @@ export default class StatusPrepend extends PureComponent {
         <FormattedMessage
           id='status.reblogged_by'
           defaultMessage='{name} boosted'
-          values={{ name : link }}
+          values={{ name : linkifiedAccounts }}
         />
       );
     case 'favourite':
       return (
         <FormattedMessage
           id='notification.favourite'
-          defaultMessage='{name} favorited your status'
-          values={{ name : link }}
+          defaultMessage='{name} favourited your status'
+          values={{ name : linkifiedAccounts }}
+        />
+      );
+    case 'reaction':
+      return (
+        <FormattedMessage
+          id='notification.reaction'
+          defaultMessage='{name} reacted to your status'
+          values={{ name: linkifiedAccounts }}
         />
       );
     case 'reblog':
@@ -71,7 +102,7 @@ export default class StatusPrepend extends PureComponent {
         <FormattedMessage
           id='notification.reblog'
           defaultMessage='{name} boosted your status'
-          values={{ name : link }}
+          values={{ name : linkifiedAccounts }}
         />
       );
     case 'status':
@@ -79,11 +110,11 @@ export default class StatusPrepend extends PureComponent {
         <FormattedMessage
           id='notification.status'
           defaultMessage='{name} just posted'
-          values={{ name: link }}
+          values={{ name: linkifiedAccounts }}
         />
       );
     case 'poll':
-      if (me === account.get('id')) {
+      if (me === accounts.get(0).get('id')) {
         return (
           <FormattedMessage
             id='notification.own_poll'
@@ -103,7 +134,7 @@ export default class StatusPrepend extends PureComponent {
         <FormattedMessage
           id='notification.update'
           defaultMessage='{name} edited a post'
-          values={{ name: link }}
+          values={{ name: linkifiedAccounts }}
         />
       );
     }
@@ -112,7 +143,7 @@ export default class StatusPrepend extends PureComponent {
 
   render () {
     const { Message } = this;
-    const { type } = this.props;
+    const { type, children } = this.props;
 
     let iconId, iconComponent;
 
@@ -120,6 +151,10 @@ export default class StatusPrepend extends PureComponent {
     case 'favourite':
       iconId = 'star';
       iconComponent = StarIcon;
+      break;
+    case 'reaction':
+      iconId = 'mood';
+      iconComponent = MoodIcon;
       break;
     case 'featured':
       iconId = 'thumb-tack';
@@ -146,14 +181,13 @@ export default class StatusPrepend extends PureComponent {
 
     return !type ? null : (
       <aside className={type === 'reblogged_by' || type === 'featured' ? 'status__prepend' : 'notification__message'}>
-        <div className={type === 'reblogged_by' || type === 'featured' ? 'status__prepend-icon-wrapper' : 'notification__favourite-icon-wrapper'}>
-          <Icon
-            className={`status__prepend-icon ${type === 'favourite' ? 'star-icon' : ''}`}
-            id={iconId}
-            icon={iconComponent}
-          />
-        </div>
+        <Icon
+          className={`status__prepend-icon ${type === 'favourite' ? 'star-icon' : ''}`}
+          id={iconId}
+          icon={iconComponent}
+        />
         <Message />
+        {children}
       </aside>
     );
   }
