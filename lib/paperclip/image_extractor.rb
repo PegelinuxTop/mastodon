@@ -35,11 +35,8 @@ module Paperclip
       dst.binmode
 
       begin
-        if ENV['FFMPEG_API_ENDPOINT'].present?
-          receive_file(dst)
-        else
-          command = Terrapin::CommandLine.new('ffmpeg', '-i :source -loglevel :loglevel -y :destination', logger: Paperclip.logger)
-          command.run(source: @file.path, destination: dst.path, loglevel: 'fatal')
+        command = Terrapin::CommandLine.new(Rails.configuration.x.ffmpeg_binary, '-i :source -loglevel :loglevel -y :destination', logger: Paperclip.logger)
+        command.run(source: @file.path, destination: dst.path, loglevel: 'fatal')
       rescue Terrapin::ExitStatusError
         dst.close(true)
         return nil
