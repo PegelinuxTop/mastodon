@@ -31,6 +31,7 @@ class Sanitize
         next true if /^(h|p|u|dt|e)-/.match?(e) # microformats classes
         next true if /^(mention|hashtag)$/.match?(e) # semantic classes
         next true if /^(ellipsis|invisible)$/.match?(e) # link formatting classes
+        next true if /^quote-inline$/.match?(e) # quote inline classes
       end
 
       node['class'] = class_list.join(' ')
@@ -72,6 +73,15 @@ class Sanitize
                end
 
       current_node.replace(current_node.document.create_text_node(current_node.text)) unless LINK_PROTOCOLS.include?(scheme)
+    end
+
+    UNSUPPORTED_ELEMENTS_TRANSFORMER = lambda do |env|
+      return unless env[:node_name] == 'h6'
+
+      current_node = env[:node]
+
+      current_node.name = 'strong'
+      current_node.wrap('<p></p>')
     end
 
     # We assume that incomming <math> nodes are of the form
@@ -119,6 +129,7 @@ class Sanitize
         'a' => %w(href rel class title translate),
         'abbr' => %w(title),
         'span' => %w(class translate),
+
         'blockquote' => %w(cite),
         'ol' => %w(start reversed),
         'li' => %w(value),

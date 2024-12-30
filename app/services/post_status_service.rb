@@ -29,6 +29,7 @@ class PostStatusService < BaseService
   # @option [String] :idempotency Optional idempotency key
   # @option [Boolean] :with_rate_limit
   # @option [Enumerable] :allowed_mentions Optional array of expected mentioned account IDs, raises `UnexpectedMentionsError` if unexpected accounts end up in mentions
+  # @option [String] :quote_id
   # @return [Status]
   def call(account, options = {})
     @account     = account
@@ -152,7 +153,7 @@ class PostStatusService < BaseService
       return
     end
 
-    raise Mastodon::ValidationError, I18n.t('media_attachments.validations.too_many') if @options[:media_ids].size > Status::MEDIA_ATTACHMENTS_LIMIT || @options[:poll].present?
+    raise Mastodon::ValidationError, I18n.t('media_attachments.validations.too_many') if @options[:media_ids].size > Status::MEDIA_ATTACHMENTS_LIMIT
 
     @media = @account.media_attachments.where(status_id: nil).where(id: @options[:media_ids].take(Status::MEDIA_ATTACHMENTS_LIMIT).map(&:to_i))
 
@@ -219,6 +220,7 @@ class PostStatusService < BaseService
       application: @options[:application],
       content_type: @options[:content_type] || @account.user&.setting_default_content_type,
       rate_limit: @options[:with_rate_limit],
+      quote_id: @options[:quote_id],
     }.compact
   end
 

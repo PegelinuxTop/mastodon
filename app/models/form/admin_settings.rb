@@ -27,14 +27,17 @@ class Form::AdminSettings
     flavour_and_skin
     thumbnail
     mascot
-    show_reblogs_in_public_timelines
-    show_replies_in_public_timelines
+    show_reblogs_in_local_timelines
+    show_replies_in_local_timelines
+    show_reblogs_in_federated_timelines
+    show_replies_in_federated_timelines
     trends
     trends_as_landing_page
     trendable_by_default
     trending_status_cw
     show_domain_blocks
     show_domain_blocks_rationale
+    show_bubble_domains
     noindex
     outgoing_spoilers
     require_invite_text
@@ -46,6 +49,8 @@ class Form::AdminSettings
     authorized_fetch
     app_icon
     favicon
+    reject_pattern
+    reject_blurhash
   ).freeze
 
   INTEGER_KEYS = %i(
@@ -61,8 +66,10 @@ class Form::AdminSettings
     preview_sensitive_media
     profile_directory
     hide_followers_count
-    show_reblogs_in_public_timelines
-    show_replies_in_public_timelines
+    show_reblogs_in_local_timelines
+    show_replies_in_local_timelines
+    show_reblogs_in_federated_timelines
+    show_replies_in_federated_timelines
     trends
     trends_as_landing_page
     trendable_by_default
@@ -98,8 +105,10 @@ class Form::AdminSettings
   validates :bootstrap_timeline_accounts, existing_username: { multiple: true }, if: -> { defined?(@bootstrap_timeline_accounts) }
   validates :show_domain_blocks, inclusion: { in: %w(disabled users all) }, if: -> { defined?(@show_domain_blocks) }
   validates :show_domain_blocks_rationale, inclusion: { in: %w(disabled users all) }, if: -> { defined?(@show_domain_blocks_rationale) }
+  validates :show_bubble_domains, inclusion: { in: %w(disabled users all) }, if: -> { defined?(@show_bubble_domains) }
   validates :media_cache_retention_period, :content_cache_retention_period, :backups_retention_period, numericality: { only_integer: true }, allow_blank: true, if: -> { defined?(@media_cache_retention_period) || defined?(@content_cache_retention_period) || defined?(@backups_retention_period) }
   validates :site_short_description, length: { maximum: DESCRIPTION_LIMIT }, if: -> { defined?(@site_short_description) }
+  validates :reject_pattern, regexp_syntax: true, if: -> { defined?(@reject_pattern) }
   validates :status_page_url, url: true, allow_blank: true
   validate :validate_site_uploads
 

@@ -10,6 +10,7 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import { connect } from 'react-redux';
 
 import ChevronRightIcon from '@/material-icons/400-24px/chevron_right.svg?react';
+import QuoteIcon from '@/material-icons/400-24px/format_quote-fill.svg?react';
 import ImageIcon from '@/material-icons/400-24px/image.svg?react';
 import InsertChartIcon from '@/material-icons/400-24px/insert_chart.svg?react';
 import LinkIcon from '@/material-icons/400-24px/link.svg?react';
@@ -149,6 +150,7 @@ class StatusContent extends PureComponent {
     rewriteMentions: PropTypes.string,
     languages: ImmutablePropTypes.map,
     intl: PropTypes.object,
+    zoomEmojisOnHover: PropTypes.bool.isRequired,
     // from react-router
     match: PropTypes.object.isRequired,
     location: PropTypes.object.isRequired,
@@ -206,7 +208,7 @@ class StatusContent extends PureComponent {
         link.classList.add('unhandled-link');
 
         link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener nofollow noreferrer');
+        link.setAttribute('rel', 'noopener nofollow');
 
         try {
           if (tagLinks && isLinkMisleading(link)) {
@@ -353,6 +355,7 @@ class StatusContent extends PureComponent {
       tagLinks,
       rewriteMentions,
       intl,
+      zoomEmojisOnHover,
       statusContent,
     } = this.props;
 
@@ -369,7 +372,12 @@ class StatusContent extends PureComponent {
       'status__content--with-action': this.props.onClick && this.props.history,
       'status__content--collapsed': renderReadMore,
       'status__content--with-spoiler': status.get('spoiler_text').length > 0,
+      'status__content--zoom-emojis-on-hover': zoomEmojisOnHover,
     });
+    const textClassNames = classnames('status__content__text translate', {
+      'status__content--zoom-emojis-on-hover': zoomEmojisOnHover,
+    });
+
 
     const readMoreButton = renderReadMore && (
       <button className='status__content__read-more-button' onClick={this.props.onClick} key='read-more'>
@@ -380,6 +388,37 @@ class StatusContent extends PureComponent {
     const translateButton = renderTranslate && (
       <TranslateButton onClick={this.handleTranslate} translation={status.get('translation')} />
     );
+
+    let quote = '';
+
+    if (status.get('quote', null) !== null) {
+      let quoteStatus = status.get('quote');
+      let quoteStatusContent = { __html: quoteStatus.get('contentHtml') };
+      let quoteStatusAccount = quoteStatus.get('account');
+      let quoteStatusDisplayName = { __html: quoteStatusAccount.get('display_name_html') };
+
+      quote = (
+        <div className='status__quote'>
+          <blockquote>
+            <bdi>
+              <span className='quote-display-name'>
+                <Icon
+                  fixedWidth
+                  aria-hidden='true'
+                  key='icon-quote-right'
+                  icon={QuoteIcon} />
+                <strong className='display-name__html'>
+                  <a onClick={this.handleAccountClick} href={quoteStatus.getIn(['account', 'url'])} dangerouslySetInnerHTML={quoteStatusDisplayName} />
+                </strong>
+              </span>
+            </bdi>
+            <div>
+              <a href={quoteStatus.get('url')} target='_blank' rel='noopener' dangerouslySetInnerHTML={quoteStatusContent} />
+            </div>
+          </blockquote>
+        </div>
+      );
+    }
 
     if (status.get('spoiler_text').length > 0) {
       let mentionsPlaceholder = '';
@@ -428,12 +467,13 @@ class StatusContent extends PureComponent {
           {mentionsPlaceholder}
 
           <div className={`status__content__spoiler ${!hidden ? 'status__content__spoiler--visible' : ''}`}>
+            {quote}
             <div
               ref={this.setContentsRef}
               key={`contents-${tagLinks}`}
               tabIndex={!hidden ? 0 : null}
               dangerouslySetInnerHTML={content}
-              className='status__content__text translate'
+              className={textClassNames}
               onMouseEnter={this.handleMouseEnter}
               onMouseLeave={this.handleMouseLeave}
               lang={language}
@@ -453,11 +493,12 @@ class StatusContent extends PureComponent {
           onMouseUp={this.handleMouseUp}
           tabIndex={0}
         >
+          {quote}
           <div
             ref={this.setContentsRef}
             key={`contents-${tagLinks}-${rewriteMentions}`}
             dangerouslySetInnerHTML={content}
-            className='status__content__text translate'
+            className={textClassNames}
             tabIndex={0}
             onMouseEnter={this.handleMouseEnter}
             onMouseLeave={this.handleMouseLeave}
@@ -472,13 +513,14 @@ class StatusContent extends PureComponent {
     } else {
       return (
         <div
-          className='status__content'
+          className={'status__content'}
           tabIndex={0}
         >
+          {quote}
           <div
             ref={this.setContentsRef}
             key={`contents-${tagLinks}`}
-            className='status__content__text translate'
+            className={textClassNames}
             dangerouslySetInnerHTML={content}
             tabIndex={0}
             onMouseEnter={this.handleMouseEnter}

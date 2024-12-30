@@ -19,6 +19,10 @@ export const LinkFooter: React.FC<{
   return (
     <div className='link-footer'>
       <p>
+        Try the <a href='https://phanpy.fedi.my.id/'>Alternative UI (Phanpy)</a>
+        .
+      </p>
+      <p>
         <strong>{domain}</strong>:{' '}
         <Link to='/about' target={multiColumn ? '_blank' : undefined}>
           <FormattedMessage id='footer.about' defaultMessage='About' />

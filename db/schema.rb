@@ -314,6 +314,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_224825) do
     t.index ["status_id"], name: "index_bookmarks_on_status_id"
   end
 
+  create_table "bubble_domains", force: :cascade do |t|
+    t.string "domain", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["domain"], name: "index_bubble_domains_on_domain", unique: true
+  end
+
   create_table "bulk_import_rows", force: :cascade do |t|
     t.bigint "bulk_import_id", null: false
     t.jsonb "data"
@@ -1007,6 +1014,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_224825) do
     t.index ["status_id"], name: "index_status_pins_on_status_id"
   end
 
+  create_table "status_reactions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "status_id", null: false
+    t.string "name", default: "", null: false
+    t.bigint "custom_emoji_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["account_id", "status_id", "name"], name: "index_status_reactions_on_account_id_and_status_id", unique: true
+    t.index ["custom_emoji_id"], name: "index_status_reactions_on_custom_emoji_id"
+    t.index ["status_id"], name: "index_status_reactions_on_status_id"
+  end
+
   create_table "status_stats", force: :cascade do |t|
     t.bigint "status_id", null: false
     t.bigint "replies_count", default: 0, null: false
@@ -1055,6 +1074,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_224825) do
     t.datetime "edited_at", precision: nil
     t.boolean "trendable"
     t.bigint "ordered_media_attachment_ids", array: true
+    t.bigint "quote_id"
     t.index ["account_id", "id", "visibility", "updated_at"], name: "index_statuses_20190820", order: { id: :desc }, where: "(deleted_at IS NULL)"
     t.index ["account_id"], name: "index_statuses_on_account_id"
     t.index ["deleted_at"], name: "index_statuses_on_deleted_at", where: "(deleted_at IS NOT NULL)"
@@ -1062,6 +1082,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_224825) do
     t.index ["id", "account_id"], name: "index_statuses_public_20200119", order: { id: :desc }, where: "((deleted_at IS NULL) AND (visibility = 0) AND (reblog_of_id IS NULL) AND ((NOT reply) OR (in_reply_to_account_id = account_id)))"
     t.index ["in_reply_to_account_id"], name: "index_statuses_on_in_reply_to_account_id", where: "(in_reply_to_account_id IS NOT NULL)"
     t.index ["in_reply_to_id"], name: "index_statuses_on_in_reply_to_id", where: "(in_reply_to_id IS NOT NULL)"
+    t.index ["quote_id"], name: "index_statuses_on_quote_id"
     t.index ["reblog_of_id", "account_id"], name: "index_statuses_on_reblog_of_id_and_account_id"
     t.index ["uri"], name: "index_statuses_on_uri", unique: true, opclass: :text_pattern_ops, where: "(uri IS NOT NULL)"
   end
@@ -1351,6 +1372,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_224825) do
   add_foreign_key "status_edits", "statuses", on_delete: :cascade
   add_foreign_key "status_pins", "accounts", name: "fk_d4cb435b62", on_delete: :cascade
   add_foreign_key "status_pins", "statuses", on_delete: :cascade
+  add_foreign_key "status_reactions", "accounts", on_delete: :cascade
+  add_foreign_key "status_reactions", "custom_emojis", on_delete: :cascade
+  add_foreign_key "status_reactions", "statuses", on_delete: :cascade
   add_foreign_key "status_stats", "statuses", on_delete: :cascade
   add_foreign_key "status_trends", "accounts", on_delete: :cascade
   add_foreign_key "status_trends", "statuses", on_delete: :cascade

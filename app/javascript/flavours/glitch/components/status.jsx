@@ -12,6 +12,7 @@ import { HotKeys } from 'react-hotkeys';
 import PictureInPicturePlaceholder from 'flavours/glitch/components/picture_in_picture_placeholder';
 import PollContainer from 'flavours/glitch/containers/poll_container';
 import NotificationOverlayContainer from 'flavours/glitch/features/notifications/containers/overlay_container';
+import { identityContextPropShape, withIdentity } from 'flavours/glitch/identity_context';
 import { autoUnfoldCW } from 'flavours/glitch/utils/content_warning';
 import { withOptionalRouter, WithOptionalRouterPropTypes } from 'flavours/glitch/utils/react_router';
 
@@ -21,7 +22,7 @@ import Card from '../features/status/components/card';
 import Bundle from '../features/ui/components/bundle';
 import { MediaGallery, Video, Audio } from '../features/ui/util/async-components';
 import { SensitiveMediaContext } from '../features/ui/util/sensitive_media_context';
-import { displayMedia } from '../initial_state';
+import { displayMedia, visibleReactions } from '../initial_state';
 
 import AttachmentList from './attachment_list';
 import { Avatar } from './avatar';
@@ -33,6 +34,7 @@ import StatusActionBar from './status_action_bar';
 import StatusContent from './status_content';
 import StatusIcons from './status_icons';
 import StatusPrepend from './status_prepend';
+import StatusReactions from './status_reactions';
 
 const domParser = new DOMParser();
 
@@ -78,6 +80,7 @@ class Status extends ImmutablePureComponent {
   static contextType = SensitiveMediaContext;
 
   static propTypes = {
+    identity: identityContextPropShape,
     containerId: PropTypes.string,
     id: PropTypes.string,
     status: ImmutablePropTypes.map,
@@ -87,12 +90,15 @@ class Status extends ImmutablePureComponent {
     rootId: PropTypes.string,
     onClick: PropTypes.func,
     onReply: PropTypes.func,
+    onQuote: PropTypes.func,
     onFavourite: PropTypes.func,
     onReblog: PropTypes.func,
     onBookmark: PropTypes.func,
     onDelete: PropTypes.func,
     onDirect: PropTypes.func,
     onMention: PropTypes.func,
+    onReactionAdd: PropTypes.func,
+    onReactionRemove: PropTypes.func,
     onPin: PropTypes.func,
     onOpenMedia: PropTypes.func,
     onOpenVideo: PropTypes.func,
@@ -444,6 +450,7 @@ class Status extends ImmutablePureComponent {
       onOpenMedia,
       notification,
       history,
+      identity,
       ...other
     } = this.props;
     let attachments = null;
@@ -619,7 +626,7 @@ class Status extends ImmutablePureComponent {
         );
         mediaIcons.push('video-camera');
       }
-    } else if (status.get('card') && settings.get('inline_preview_cards') && !this.props.muted) {
+    } else if (!status.get('quote') && status.get('card') && settings.get('inline_preview_cards') && !this.props.muted) {
       media.push(
         <Card
           onOpenMedia={this.handleOpenMedia}
@@ -645,6 +652,7 @@ class Status extends ImmutablePureComponent {
     if (this.props.prepend && account) {
       const notifKind = {
         favourite: 'favourited',
+        reaction: 'reacted',
         reblog: 'boosted',
         reblogged_by: 'boosted',
         status: 'posted',
@@ -662,7 +670,10 @@ class Status extends ImmutablePureComponent {
     }
 
     if (this.props.prepend === 'reblog') {
-      rebloggedByText = intl.formatMessage({ id: 'status.reblogged_by', defaultMessage: '{name} boosted' }, { name: account.get('acct') });
+      rebloggedByText = intl.formatMessage(
+        { id: 'status.reblogged_by', defaultMessage: '{name} boosted' },
+        { name: account.get('acct') },
+      );
     }
 
     if (account === undefined || account === null) {
@@ -722,7 +733,17 @@ class Status extends ImmutablePureComponent {
               onCollapsedToggle={this.handleCollapsedToggle}
               tagLinks={settings.get('tag_misleading_links')}
               rewriteMentions={settings.get('rewrite_mentions')}
+              zoomEmojisOnHover={settings.get('zoom_emojis_on_hover')}
               {...statusContentProps}
+            />
+
+            <StatusReactions
+              statusId={status.get('id')}
+              reactions={status.get('reactions')}
+              numVisible={visibleReactions}
+              addReaction={this.props.onReactionAdd}
+              removeReaction={this.props.onReactionRemove}
+              canReact={this.props.identity.signedIn}
             />
 
             <StatusActionBar
@@ -746,4 +767,4 @@ class Status extends ImmutablePureComponent {
 
 }
 
-export default withOptionalRouter(injectIntl(Status));
+export default withOptionalRouter(injectIntl((withIdentity(Status))));

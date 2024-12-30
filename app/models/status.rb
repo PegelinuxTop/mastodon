@@ -29,6 +29,7 @@
 #  edited_at                    :datetime
 #  trendable                    :boolean
 #  ordered_media_attachment_ids :bigint(8)        is an Array
+#  quote_id                     :bigint(8)
 #
 
 class Status < ApplicationRecord
@@ -66,6 +67,7 @@ class Status < ApplicationRecord
   with_options class_name: 'Status', optional: true do
     belongs_to :thread, foreign_key: 'in_reply_to_id', inverse_of: :replies
     belongs_to :reblog, foreign_key: 'reblog_of_id', inverse_of: :reblogs
+    belongs_to :quote, inverse_of: :quoted
   end
 
   has_many :favourites, inverse_of: :status, dependent: :destroy
@@ -76,6 +78,8 @@ class Status < ApplicationRecord
   has_many :mentions, dependent: :destroy, inverse_of: :status
   has_many :mentioned_accounts, through: :mentions, source: :account, class_name: 'Account'
   has_many :media_attachments, dependent: :nullify
+  has_many :status_reactions, inverse_of: :status, dependent: :destroy
+  has_many :quoted, foreign_key: 'quote_id', class_name: 'Status', inverse_of: :quote, dependent: :nullify
 
   # The `dependent` option is enabled by the initial `mentions` association declaration
   has_many :active_mentions, -> { active }, class_name: 'Mention', inverse_of: :status # rubocop:disable Rails/HasManyOrHasOneDependent
@@ -102,6 +106,7 @@ class Status < ApplicationRecord
   validates :reblog, uniqueness: { scope: :account }, if: :reblog?
   validates :visibility, exclusion: { in: %w(direct limited) }, if: :reblog?
   validates :content_type, inclusion: { in: %w(text/plain text/markdown text/html) }, allow_nil: true
+  validates :quote_visibility, inclusion: { in: %w(public unlisted) }, if: :quote?
 
   accepts_nested_attributes_for :poll
 
@@ -117,7 +122,7 @@ class Status < ApplicationRecord
   scope :without_reblogs, -> { where(statuses: { reblog_of_id: nil }) }
   scope :tagged_with, ->(tag_ids) { joins(:statuses_tags).where(statuses_tags: { tag_id: tag_ids }) }
   scope :not_excluded_by_account, ->(account) { where.not(account_id: account.excluded_from_timeline_account_ids) }
-  scope :not_domain_blocked_by_account, ->(account) { account.excluded_from_timeline_domains.blank? ? left_outer_joins(:account) : left_outer_joins(:account).merge(Account.not_domain_blocked_by_account(account)) }
+  scope :not_domain_blocked_by_account, ->(account, bubble_only = false) { account.excluded_from_timeline_domains.blank? ? left_outer_joins(:account) : left_outer_joins(:account).merge(Account.not_domain_blocked_by_account(account, bubble_only)) }
   scope :tagged_with_all, lambda { |tag_ids|
     Array(tag_ids).map(&:to_i).reduce(self) do |result, id|
       result.where(<<~SQL.squish, tag_id: id)
@@ -133,6 +138,8 @@ class Status < ApplicationRecord
   scope :not_direct_visibility, -> { where.not(visibility: :direct) }
 
   scope :not_local_only, -> { where(local_only: [false, nil]) }
+
+  scope :bubble, -> { left_outer_joins(:account).where(accounts: { domain: BubbleDomain.bubble_domains }) }
 
   after_create_commit :trigger_create_webhooks
   after_update_commit :trigger_update_webhooks
@@ -179,6 +186,17 @@ class Status < ApplicationRecord
                      account: [:account_stat, user: :role],
                      active_mentions: :account,
                    ],
+                   quote: [
+                     :application,
+                     :tags,
+                     :media_attachments,
+                     :conversation,
+                     :status_stat,
+                     :preloadable_poll,
+                     preview_cards_status: [:preview_card],
+                     account: [:account_stat, :user],
+                     active_mentions: { account: :account_stat },
+                   ],
                    thread: :account
 
   delegate :domain, to: :account, prefix: true
@@ -205,12 +223,24 @@ class Status < ApplicationRecord
     attributes['local'] || uri.nil?
   end
 
+  def bubble?
+    BubbleDomain.in_bubble?(account.domain)
+  end
+
   def in_reply_to_local_account?
     reply? && thread&.account&.local?
   end
 
   def reblog?
     !reblog_of_id.nil?
+  end
+
+  def quote?
+    !quote_id.nil? && quote
+  end
+
+  def quote_visibility
+    quote&.visibility
   end
 
   def within_realtime_window?
@@ -285,7 +315,17 @@ class Status < ApplicationRecord
     fields  = [spoiler_text, text]
     fields += preloadable_poll.options unless preloadable_poll.nil?
 
-    @emojis = CustomEmoji.from_text(fields.join(' '), account.domain)
+    @emojis = CustomEmoji.from_text(fields.join(' '), account.domain) + (quote? ? CustomEmoji.from_text([quote.spoiler_text, quote.text].join(' '), quote.account.domain) : [])
+  end
+
+  def reactions(account_id = nil)
+    grouped_ordered_status_reactions.select(
+      [:name, :custom_emoji_id, 'COUNT(*) as count'].tap do |values|
+        values << value_for_reaction_me_column(account_id)
+      end
+    ).to_a.tap do |records|
+      ActiveRecord::Associations::Preloader.new(records: records, associations: :custom_emoji).call
+    end
   end
 
   def ordered_media_attachments
@@ -464,6 +504,35 @@ class Status < ApplicationRecord
   end
 
   private
+
+  def grouped_ordered_status_reactions
+    status_reactions
+      .group(:status_id, :name, :custom_emoji_id)
+      .order(
+        Arel.sql('MIN(created_at)').asc
+      )
+  end
+
+  def value_for_reaction_me_column(account_id)
+    if account_id.nil?
+      'FALSE AS me'
+    else
+      <<~SQL.squish
+        EXISTS(
+          SELECT 1
+          FROM status_reactions inner_reactions
+          WHERE inner_reactions.account_id = #{account_id}
+            AND inner_reactions.status_id = status_reactions.status_id
+            AND inner_reactions.name = status_reactions.name
+            AND (
+              inner_reactions.custom_emoji_id = status_reactions.custom_emoji_id
+              OR inner_reactions.custom_emoji_id IS NULL
+                AND status_reactions.custom_emoji_id IS NULL
+            )
+        ) AS me
+      SQL
+    end
+  end
 
   def update_status_stat!(attrs)
     return if marked_for_destruction? || destroyed?

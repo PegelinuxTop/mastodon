@@ -70,6 +70,7 @@ export const COMPOSE_UPLOAD_CHANGE_SUCCESS     = 'COMPOSE_UPLOAD_UPDATE_SUCCESS'
 export const COMPOSE_UPLOAD_CHANGE_FAIL        = 'COMPOSE_UPLOAD_UPDATE_FAIL';
 
 export const COMPOSE_DOODLE_SET        = 'COMPOSE_DOODLE_SET';
+export const COMPOSE_TENOR_SET         = 'COMPOSE_TENOR_SET';
 
 export const COMPOSE_POLL_ADD             = 'COMPOSE_POLL_ADD';
 export const COMPOSE_POLL_REMOVE          = 'COMPOSE_POLL_REMOVE';
@@ -87,9 +88,11 @@ export const COMPOSE_CHANGE_MEDIA_ORDER       = 'COMPOSE_CHANGE_MEDIA_ORDER';
 export const COMPOSE_SET_STATUS = 'COMPOSE_SET_STATUS';
 export const COMPOSE_FOCUS = 'COMPOSE_FOCUS';
 
+export const COMPOSE_QUOTE        = 'COMPOSE_QUOTE';
+export const COMPOSE_QUOTE_CANCEL = 'COMPOSE_QUOTE_CANCEL';
+
 const messages = defineMessages({
   uploadErrorLimit: { id: 'upload_error.limit', defaultMessage: 'File upload limit exceeded.' },
-  uploadErrorPoll:  { id: 'upload_error.poll', defaultMessage: 'File upload not allowed with polls.' },
   open: { id: 'compose.published.open', defaultMessage: 'Open' },
   published: { id: 'compose.published.body', defaultMessage: 'Post published.' },
   saved: { id: 'compose.saved.body', defaultMessage: 'Post saved.' },
@@ -118,12 +121,14 @@ export function changeCompose(text) {
   };
 }
 
-export function replyCompose(status) {
+export function replyCompose(status, statusRebloggedBy) {
   return (dispatch, getState) => {
     const prependCWRe = getState().getIn(['local_settings', 'prepend_cw_re']);
+    const mentionReblogger = getState().getIn(['local_settings', 'mention_reblogger']);
     dispatch({
       type: COMPOSE_REPLY,
       status: status,
+      statusRebloggedBy: mentionReblogger ? statusRebloggedBy : undefined,
       prependCWRe: prependCWRe,
     });
 
@@ -146,6 +151,27 @@ export function replyComposeById(statusId) {
 export function cancelReplyCompose() {
   return {
     type: COMPOSE_REPLY_CANCEL,
+  };
+}
+
+export function quoteCompose(status, statusRebloggedBy) {
+  return (dispatch, getState) => {
+    const prependCWRe = getState().getIn(['local_settings', 'prepend_cw_re']);
+    const mentionReblogger = getState().getIn(['local_settings', 'mention_reblogger']);
+    dispatch({
+      type: COMPOSE_QUOTE,
+      status: status,
+      statusRebloggedBy: mentionReblogger ? statusRebloggedBy : undefined,
+      prependCWRe: prependCWRe,
+    });
+
+    ensureComposeIsVisible(getState);
+  };
+}
+
+export function cancelQuoteCompose() {
+  return {
+    type: COMPOSE_QUOTE_CANCEL,
   };
 }
 
@@ -237,6 +263,7 @@ export function submitCompose(overridePrivacy = null) {
         status,
         content_type: getState().getIn(['compose', 'content_type']),
         in_reply_to_id: getState().getIn(['compose', 'in_reply_to'], null),
+        quote_id: getState().getIn(['compose', 'quote_id'], null),
         media_ids: media.map(item => item.get('id')),
         media_attributes,
         sensitive: getState().getIn(['compose', 'sensitive']) || (spoilerText.length > 0 && media.size !== 0),
@@ -326,7 +353,14 @@ export function doodleSet(options) {
   };
 }
 
-export function uploadCompose(files) {
+export function tenorSet(options) {
+  return {
+    type: COMPOSE_TENOR_SET,
+    options: options,
+  };
+}
+
+export function uploadCompose(files, alt = '') {
   return function (dispatch, getState) {
     const uploadLimit = getState().getIn(['server', 'server', 'configuration', 'statuses', 'max_media_attachments']);
     const media = getState().getIn(['compose', 'media_attachments']);
@@ -340,11 +374,6 @@ export function uploadCompose(files) {
       return;
     }
 
-    if (getState().getIn(['compose', 'poll'])) {
-      dispatch(showAlert({ message: messages.uploadErrorPoll }));
-      return;
-    }
-
     dispatch(uploadComposeRequest());
 
     for (const [i, f] of Array.from(files).entries()) {
@@ -353,10 +382,11 @@ export function uploadCompose(files) {
       resizeImage(f).then(file => {
         const data = new FormData();
         data.append('file', file);
+        data.append('description', alt);
         // Account for disparity in size of original image and resized data
         total += file.size - f.size;
 
-        return api().post('/api/v2/media', data, {
+        return api(getState).post('/api/v2/media', data, {
           onUploadProgress: function({ loaded }){
             progress[i] = loaded;
             dispatch(uploadComposeProgress(progress.reduce((a, v) => a + v, 0), total));
@@ -373,7 +403,7 @@ export function uploadCompose(files) {
             let tryCount = 1;
 
             const poll = () => {
-              api().get(`/api/v1/media/${data.id}`).then(response => {
+              api(getState).get(`/api/v1/media/${data.id}`).then(response => {
                 if (response.status === 200) {
                   dispatch(uploadComposeSuccess(response.data, f));
                 } else if (response.status === 206) {

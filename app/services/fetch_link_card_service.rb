@@ -81,7 +81,7 @@ class FetchLinkCardService < BaseService
              @status.text.scan(URL_PATTERN).map { |array| Addressable::URI.parse(array[1]).normalize }
            else
              document = Nokogiri::HTML5(@status.text)
-             links = document.css('a')
+             links = document.css(':not(.quote-inline) > a')
 
              links.filter_map { |a| Addressable::URI.parse(a['href']) unless skip_link?(a) }.filter_map(&:normalize)
            end
@@ -106,12 +106,11 @@ class FetchLinkCardService < BaseService
   end
 
   def attempt_oembed
-    service         = FetchOEmbedService.new
-    url_domain      = Addressable::URI.parse(@url).normalized_host
-    cached_endpoint = Rails.cache.read("oembed_endpoint:#{url_domain}")
+    service = FetchOEmbedService.new
 
-    embed   = service.call(@url, cached_endpoint: cached_endpoint) unless cached_endpoint.nil?
+    embed   = service.call(@url, use_cached_endpoint: true)
     embed ||= service.call(@url, html: html) unless html.nil?
+    embed ||= service.call(@url, use_cached_endpoint: true) if @url != @original_url.to_s
 
     return false if embed.nil?
 

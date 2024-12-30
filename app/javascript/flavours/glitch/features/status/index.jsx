@@ -29,6 +29,7 @@ import { WithRouterPropTypes } from 'flavours/glitch/utils/react_router';
 import { initBlockModal } from '../../actions/blocks';
 import {
   replyCompose,
+  quoteCompose,
   mentionCompose,
   directCompose,
 } from '../../actions/compose';
@@ -39,6 +40,8 @@ import {
   toggleReblog,
   pin,
   unpin,
+  addReaction,
+  removeReaction,
 } from '../../actions/interactions';
 import { openModal } from '../../actions/modal';
 import { initMuteModal } from '../../actions/mutes';
@@ -279,6 +282,19 @@ class Status extends ImmutablePureComponent {
     }
   };
 
+  handleReactionAdd = (statusId, name, url) => {
+    const { dispatch, identity } = this.props;
+    const { signedIn } = identity;
+
+    if (signedIn) {
+      dispatch(addReaction(statusId, name, url));
+    }
+  };
+
+  handleReactionRemove = (statusId, name) => {
+    this.props.dispatch(removeReaction(statusId, name));
+  };
+
   handlePin = (status) => {
     if (status.get('pinned')) {
       this.props.dispatch(unpin(status));
@@ -305,6 +321,21 @@ class Status extends ImmutablePureComponent {
           accountId: status.getIn(['account', 'id']),
           url: status.get('uri'),
         },
+      }));
+    }
+  };
+
+  handleQuoteClick = (status) => {
+    const { dispatch } = this.props;
+    const { signedIn } = this.props.identity;
+
+    if (signedIn) {
+      dispatch(quoteCompose(status, this.props.history));
+    } else {
+      dispatch(openModal('INTERACTION', {
+        type: 'reply',
+        accountId: status.getIn(['account', 'id']),
+        url: status.get('url'),
       }));
     }
   };
@@ -705,6 +736,8 @@ class Status extends ImmutablePureComponent {
                   settings={settings}
                   onOpenVideo={this.handleOpenVideo}
                   onOpenMedia={this.handleOpenMedia}
+                  onReactionAdd={this.handleReactionAdd}
+                  onReactionRemove={this.handleReactionRemove}
                   expanded={isExpanded}
                   onToggleHidden={this.handleToggleHidden}
                   onTranslate={this.handleTranslate}
@@ -719,8 +752,10 @@ class Status extends ImmutablePureComponent {
                   status={status}
                   onReply={this.handleReplyClick}
                   onFavourite={this.handleFavouriteClick}
+                  onReactionAdd={this.handleReactionAdd}
                   onReblog={this.handleReblogClick}
                   onBookmark={this.handleBookmarkClick}
+                  onQuote={this.handleQuoteClick}
                   onDelete={this.handleDeleteClick}
                   onEdit={this.handleEditClick}
                   onDirect={this.handleDirectClick}

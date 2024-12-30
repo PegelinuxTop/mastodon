@@ -33,7 +33,7 @@
 }
 
 .directory__card__img {
-  background: lighten($ui-base-color, 12%);
+  background: color.adjust($ui-base-color, $lightness: 12%);
 }
 
 .account__header {
@@ -51,7 +51,7 @@
 }
 
 .icon-button:disabled {
-  color: darken($action-button-color, 25%);
+  color: color.adjust($action-button-color, $lightness: -25%);
 }
 
 .getting-started__footer a {
@@ -63,7 +63,7 @@
 .confirmation-modal__cancel-button,
 .mute-modal__cancel-button,
 .block-modal__cancel-button {
-  color: lighten($ui-base-color, 26%);
+  color: color.adjust($ui-base-color, $lightness: 26%);
 
   &:hover,
   &:focus,
@@ -111,7 +111,7 @@
 
 // Change the background colors of statuses
 .focusable:focus {
-  background: lighten($white, 4%);
+  background: color.adjust($white, $lightness: 4%);
 }
 
 .account-gallery__item a {
@@ -135,11 +135,11 @@
 
 .compare-history-modal .report-modal__target,
 .report-dialog-modal .poll__option.dialog-option {
-  border-bottom-color: lighten($ui-base-color, 4%);
+  border-bottom-color: color.adjust($ui-base-color, $lightness: -4%);
 }
 
 .report-dialog-modal__container {
-  border-top-color: lighten($ui-base-color, 4%);
+  border-top-color: color.adjust($ui-base-color, $lightness: -4%);
 }
 
 .reactions-bar__item:hover,
@@ -150,7 +150,11 @@
 
 .reactions-bar__item.active {
   background-color: mix($white, $ui-highlight-color, 80%);
-  border-color: mix(lighten($ui-base-color, 8%), $ui-highlight-color, 80%);
+  border-color: mix(
+    color.adjust($ui-base-color, $lightness: 8%),
+    $ui-highlight-color,
+    80%
+  );
 }
 
 .media-modal__overlay .picture-in-picture__footer {
@@ -182,7 +186,7 @@
 }
 
 .flash-message.warning {
-  color: lighten($gold-star, 16%);
+  color: color.adjust($gold-star, $lightness: 16%);
 }
 
 .boost-modal__action-bar,
@@ -191,14 +195,14 @@
 .block-modal__action-bar,
 .onboarding-modal__paginator,
 .error-modal__footer {
-  background: darken($ui-base-color, 6%);
+  background: color.adjust($ui-base-color, $lightness: -6%);
 
   .onboarding-modal__nav,
   .error-modal__nav {
     &:hover,
     &:focus,
     &:active {
-      background-color: darken($ui-base-color, 12%);
+      background-color: color.adjust($ui-base-color, $lightness: -12%);
     }
   }
 }
@@ -212,7 +216,7 @@
   border: 1px solid var(--background-border-color);
 
   &:focus {
-    border-color: lighten($ui-base-color, 12%);
+    border-color: color.adjust($ui-base-color, $lightness: 12%);
     background: $white;
   }
 }
@@ -222,12 +226,12 @@
 }
 
 .react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background: lighten($ui-primary-color, 10%);
+  background: color.adjust($ui-primary-color, $lightness: 10%);
 }
 
 .react-toggle.react-toggle--checked:hover:not(.react-toggle--disabled)
   .react-toggle-track {
-  background: lighten($ui-highlight-color, 10%);
+  background: color.adjust($ui-highlight-color, $lightness: 10%);
 }
 
 // Change the default color used for the text in an empty column or on the error column
@@ -240,7 +244,7 @@
 // Change the default colors used on some parts of the profile pages
 .activity-stream-tabs {
   background: $account-background-color;
-  border-bottom-color: lighten($ui-base-color, 8%);
+  border-bottom-color: color.adjust($ui-base-color, $lightness: 8%);
 }
 
 .nothing-here,
@@ -253,8 +257,8 @@
 
 .picture-in-picture-placeholder {
   background: $white;
-  border-color: lighten($ui-base-color, 8%);
-  color: lighten($ui-base-color, 8%);
+  border-color: color.adjust($ui-base-color, $lightness: 8%);
+  color: color.adjust($ui-base-color, $lightness: 8%);
 }
 
 .directory__tag > a {
@@ -269,7 +273,7 @@
   &__toolbar,
   &__row,
   .nothing-here {
-    border-color: lighten($ui-base-color, 8%);
+    border-color: color.adjust($ui-base-color, $lightness: 8%);
   }
 }
 
@@ -286,7 +290,7 @@
     .detailed-status.light,
     .more.light,
     .status.light {
-      border-bottom-color: lighten($ui-base-color, 8%);
+      border-bottom-color: color.adjust($ui-base-color, $lightness: 8%);
     }
   }
 
@@ -347,12 +351,12 @@
   input[type='url'],
   input[type='datetime-local'],
   textarea {
-    background: darken($ui-base-color, 10%);
+    background: color.adjust($ui-base-color, $lightness: -10%);
   }
 
   select {
-    background: darken($ui-base-color, 10%)
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14.933 18.467' height='19.698' width='15.929'><path d='M3.467 14.967l-3.393-3.5H14.86l-3.392 3.5c-1.866 1.925-3.666 3.5-4 3.5-.335 0-2.135-1.575-4-3.5zm.266-11.234L7.467 0 11.2 3.733l3.733 3.734H0l3.733-3.734z' fill='#{hex-color(lighten($ui-base-color, 12%))}'/></svg>")
+    background: color.adjust($ui-base-color, $lightness: -10%)
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14.933 18.467' height='19.698' width='15.929'><path d='M3.467 14.967l-3.393-3.5H14.86l-3.392 3.5c-1.866 1.925-3.666 3.5-4 3.5-.335 0-2.135-1.575-4-3.5zm.266-11.234L7.467 0 11.2 3.733l3.733 3.734H0l3.733-3.734z' fill='#{hex-color(color.adjust($ui-base-color, $lightness: 12%))}'/></svg>")
       no-repeat right 8px center / auto 14px;
   }
 }
@@ -392,7 +396,7 @@
 
 .card {
   &__img {
-    background: darken($ui-base-color, 10%);
+    background: color.adjust($ui-base-color, $lightness: -10%);
   }
 
   & > a {
@@ -400,7 +404,7 @@
     &:active,
     &:focus {
       .card__bar {
-        background: darken($ui-base-color, 10%);
+        background: color.adjust($ui-base-color, $lightness: -10%);
       }
     }
   }
@@ -409,7 +413,7 @@
 .mute-modal select {
   border: 1px solid var(--background-border-color);
   background: $simple-background-color
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14.933 18.467' height='19.698' width='15.929'><path d='M3.467 14.967l-3.393-3.5H14.86l-3.392 3.5c-1.866 1.925-3.666 3.5-4 3.5-.335 0-2.135-1.575-4-3.5zm.266-11.234L7.467 0 11.2 3.733l3.733 3.734H0l3.733-3.734z' fill='#{hex-color(lighten($ui-base-color, 8%))}'/></svg>")
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14.933 18.467' height='19.698' width='15.929'><path d='M3.467 14.967l-3.393-3.5H14.86l-3.392 3.5c-1.866 1.925-3.666 3.5-4 3.5-.335 0-2.135-1.575-4-3.5zm.266-11.234L7.467 0 11.2 3.733l3.733 3.734H0l3.733-3.734z' fill='#{hex-color(color.adjust($ui-base-color, $lightness: 8%))}'/></svg>")
     no-repeat right 8px center / auto 16px;
 }
 
@@ -421,15 +425,15 @@
   &:not([disabled]) {
     &:hover,
     &:focus {
-      background: darken($ui-secondary-color, 10%);
+      background: color.adjust($ui-secondary-color, $lightness: -10%);
     }
 
     &.active {
-      background-color: darken($ui-highlight-color, 2%);
+      background-color: color.adjust($ui-highlight-color, $lightness: -2%);
 
       &:hover,
       &:focus {
-        background: lighten($ui-highlight-color, 10%);
+        background: color.adjust($ui-highlight-color, $lightness: 10%);
       }
     }
   }
@@ -437,16 +441,16 @@
 
 .glitch.local-settings {
   background: $ui-base-color;
-  border: 1px solid lighten($ui-base-color, 8%);
+  border: 1px solid color.adjust($ui-base-color, $lightness: 8%);
 }
 
 .glitch.local-settings__navigation {
-  background: darken($ui-base-color, 8%);
+  background: color.adjust($ui-base-color, $lightness: -8%);
 }
 
 .glitch.local-settings__navigation__item {
-  background: darken($ui-base-color, 8%);
-  border-bottom: 1px lighten($ui-base-color, 8%) solid;
+  background: color.adjust($ui-base-color, $lightness: -8%);
+  border-bottom: 1px color.adjust($ui-base-color, $lightness: 8%) solid;
 
   &:hover {
     background: $ui-base-color;
@@ -502,13 +506,13 @@
 }
 
 .compose-form .spoiler-input__input {
-  color: lighten($ui-highlight-color, 8%);
+  color: color.adjust($ui-highlight-color, $lightness: 8%);
 }
 
 .emoji-mart-search input,
 .language-dropdown__dropdown .emoji-mart-search input,
 .poll__option input[type='text'] {
-  background: darken($ui-base-color, 10%);
+  background: color.adjust($ui-base-color, $lightness: -10%);
 }
 
 .search__popout__menu__item {
@@ -542,7 +546,7 @@ a.sparkline {
   &:hover,
   &:focus,
   &:active {
-    background: darken($ui-base-color, 10%);
+    background: color.adjust($ui-base-color, $lightness: -10%);
   }
 }
 
@@ -552,7 +556,7 @@ a.sparkline {
       &:hover,
       &:focus,
       &:active {
-        background: darken($ui-base-color, 10%);
+        background: color.adjust($ui-base-color, $lightness: -10%);
       }
     }
   }
@@ -564,7 +568,7 @@ a.sparkline {
       &:hover,
       &:focus,
       &:active {
-        background: darken($ui-base-color, 10%);
+        background: color.adjust($ui-base-color, $lightness: -10%);
       }
     }
   }
@@ -574,16 +578,16 @@ a.sparkline {
   &:hover,
   &:focus,
   &:active {
-    background: darken($ui-base-color, 10%);
+    background: color.adjust($ui-base-color, $lightness: -10%);
   }
 }
 
 .setting-text {
-  background: darken($ui-base-color, 10%);
+  background: color.adjust($ui-base-color, $lightness: -10%);
 }
 
 .report-dialog-modal__textarea {
-  background: darken($ui-base-color, 10%);
+  background: color.adjust($ui-base-color, $lightness: -10%);
 }
 
 .autosuggest-account {

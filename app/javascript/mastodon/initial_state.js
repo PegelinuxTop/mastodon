@@ -42,6 +42,7 @@
  * @property {boolean} use_blurhash
  * @property {boolean=} use_pending_items
  * @property {string} version
+ * @property {boolean} translation_enabled
  * @property {string} sso_redirect
  * @property {string} status_page_url
  * @property {boolean} terms_of_service_enabled
@@ -115,6 +116,7 @@ export const trendsAsLanding = getMeta('trends_as_landing_page');
 export const useBlurhash = getMeta('use_blurhash');
 export const usePendingItems = getMeta('use_pending_items');
 export const version = getMeta('version');
+export const translationEnabled = getMeta('translation_enabled');
 export const languages = initialState?.languages;
 export const criticalUpdatesPending = initialState?.critical_updates_pending;
 export const statusPageUrl = getMeta('status_page_url');

@@ -9,12 +9,42 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     dereference_object!
 
     create_status
+  rescue Mastodon::RejectPayload
+    reject_payload!
   end
 
   private
 
+  def create_encrypted_message
+    return reject_payload! if non_matching_uri_hosts?(@account.uri, object_uri) || @options[:delivered_to_account_id].blank?
+
+    target_account = Account.find(@options[:delivered_to_account_id])
+    target_device  = target_account.devices.find_by(device_id: @object.dig('to', 'deviceId'))
+
+    return if target_device.nil?
+
+    target_device.encrypted_messages.create!(
+      from_account: @account,
+      from_device_id: @object.dig('attributedTo', 'deviceId'),
+      type: @object['messageType'],
+      body: @object['cipherText'],
+      digest: @object.dig('digest', 'digestValue'),
+      message_franking: message_franking.to_token
+    )
+  end
+
+  def message_franking
+    MessageFranking.new(
+      hmac: @object.dig('digest', 'digestValue'),
+      original_franking: @object['messageFranking'],
+      source_account_id: @account.id,
+      target_account_id: @options[:delivered_to_account_id],
+      timestamp: Time.now.utc
+    )
+  end
+
   def create_status
-    return reject_payload! if unsupported_object_type? || non_matching_uri_hosts?(@account.uri, object_uri) || tombstone_exists? || !related_to_local_activity?
+    return reject_payload! if unsupported_object_type? || non_matching_uri_hosts?(@account.uri, object_uri) || tombstone_exists? || !related_to_local_activity? || reject_pattern?(@object['content'])
 
     with_redis_lock("create:#{object_uri}") do
       return if delete_arrived_first?(object_uri) || poll_vote?
@@ -47,8 +77,15 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     @params               = {}
 
     process_status_params
+
+    raise Mastodon::RejectPayload if MediaAttachment.where(id: @params[:media_attachment_ids]).where(blurhash: Setting.reject_blurhash.split(/\r?\n/).compact_blank.uniq).present?
+    raise Mastodon::RejectPayload if reject_pattern?(MediaAttachment.where(id: @params[:media_attachment_ids]).pluck(:description).join('\n'))
+
     process_tags
     process_audience
+
+    # Reject the status unless all the hashtags are usable:
+    return reject_payload! unless @tags.all?(&:usable?)
 
     ApplicationRecord.transaction do
       @status = Status.create!(@params)
@@ -101,6 +138,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
       media_attachment_ids: attachment_ids,
       ordered_media_attachment_ids: attachment_ids,
       poll: process_poll,
+      quote: process_quote,
     }
   end
 
@@ -423,6 +461,10 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     Tombstone.exists?(uri: object_uri)
   end
 
+  def reject_pattern?(text)
+    Setting.reject_pattern.present? && text&.match?(Setting.reject_pattern)
+  end
+
   def forward_for_reply
     return unless @status.distributable? && @json['signature'].present? && reply_to_local?
 
@@ -439,5 +481,27 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   rescue ActiveRecord::StaleObjectError
     poll.reload
     retry
+  end
+
+  def guess_quote_url
+    if @object['quoteUri'].present?
+      @object['quoteUri']
+    elsif @object['quoteUrl'].present?
+      @object['quoteUrl']
+    elsif @object['quoteURL'].present?
+      @object['quoteURL']
+    elsif @object['_misskey_quote'].present?
+      @object['_misskey_quote']
+    end
+  end
+
+  def process_quote
+    url = guess_quote_url
+    return nil if url.nil?
+
+    quote = ResolveURLService.new.call(url)
+    status_from_uri(quote.uri) if quote
+  rescue
+    nil
   end
 end

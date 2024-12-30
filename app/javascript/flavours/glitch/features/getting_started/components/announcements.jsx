@@ -13,7 +13,6 @@ import TransitionMotion from 'react-motion/lib/TransitionMotion';
 import spring from 'react-motion/lib/spring';
 import ReactSwipeableViews from 'react-swipeable-views';
 
-import elephantUIPlane from '@/images/elephant_ui_plane.svg';
 import AddIcon from '@/material-icons/400-24px/add.svg?react';
 import ChevronLeftIcon from '@/material-icons/400-24px/chevron_left.svg?react';
 import ChevronRightIcon from '@/material-icons/400-24px/chevron_right.svg?react';
@@ -22,7 +21,7 @@ import { Icon }  from 'flavours/glitch/components/icon';
 import { IconButton } from 'flavours/glitch/components/icon_button';
 import EmojiPickerDropdown from 'flavours/glitch/features/compose/containers/emoji_picker_dropdown_container';
 import { unicodeMapping } from 'flavours/glitch/features/emoji/emoji_unicode_mapping_light';
-import { autoPlayGif, reduceMotion, disableSwiping, mascot } from 'flavours/glitch/initial_state';
+import { autoPlayGif, reduceMotion, disableSwiping } from 'flavours/glitch/initial_state';
 import { assetHost } from 'flavours/glitch/utils/config';
 import { WithRouterPropTypes } from 'flavours/glitch/utils/react_router';
 
@@ -423,8 +422,6 @@ class Announcements extends ImmutablePureComponent {
 
     return (
       <div className='announcements'>
-        <img className='announcements__mastodon' alt='' draggable='false' src={mascot || elephantUIPlane} />
-
         <div className='announcements__container'>
           <ReactSwipeableViews animateHeight animateTransitions={!reduceMotion} index={index} onChangeIndex={this.handleChangeIndex}>
             {announcements.map((announcement, idx) => (

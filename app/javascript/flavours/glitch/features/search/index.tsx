@@ -52,10 +52,7 @@ const renderHashtags = (hashtags: HashtagType[]) =>
   ));
 
 const renderStatuses = (statusIds: string[]) =>
-  hidePeek<string>(statusIds).map((id) => (
-    // @ts-expect-error inferred props are wrong
-    <Status key={id} id={id} />
-  ));
+  hidePeek<string>(statusIds).map((id) => <Status key={id} id={id} />);
 
 type SearchType = 'all' | ApiSearchType;
 
@@ -190,7 +187,6 @@ export const SearchResults: React.FC<{ multiColumn: boolean }> = ({
                   onClickMore={handleSelectStatuses}
                 >
                   {results.statuses.slice(0, INITIAL_DISPLAY).map((id) => (
-                    // @ts-expect-error inferred props are wrong
                     <Status key={id} id={id} />
                   ))}
                 </SearchSection>

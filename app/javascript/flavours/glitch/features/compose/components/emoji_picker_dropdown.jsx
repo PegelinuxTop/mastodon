@@ -45,8 +45,8 @@ const notFoundFn = () => (
     <Emoji
       emoji='sleuth_or_spy'
       set='twitter'
-      size={32}
-      sheetSize={32}
+      size={33}
+      sheetSize={43}
       backgroundImageFn={backgroundImageFn}
     />
 
@@ -281,8 +281,8 @@ class EmojiPickerMenuImpl extends PureComponent {
     return (
       <div className={classNames('emoji-picker-dropdown__menu', { selecting: modifierOpen })} style={style} ref={this.setRef}>
         <EmojiPicker
-          perLine={8}
-          emojiSize={22}
+          perLine={7}
+          emojiSize={28}
           sheetSize={32}
           custom={buildCustomEmojis(custom_emojis)}
           color=''
@@ -327,6 +327,9 @@ class EmojiPickerDropdown extends PureComponent {
     onPickEmoji: PropTypes.func.isRequired,
     onSkinTone: PropTypes.func.isRequired,
     skinTone: PropTypes.number.isRequired,
+    title: PropTypes.string,
+    icon: PropTypes.node,
+    disabled: PropTypes.bool,
   };
 
   state = {
@@ -361,7 +364,7 @@ class EmojiPickerDropdown extends PureComponent {
   };
 
   onToggle = (e) => {
-    if (!this.state.loading && (!e.key || e.key === 'Enter')) {
+    if (!this.state.disabled && !this.state.loading && (!e.key || e.key === 'Enter')) {
       if (this.state.active) {
         this.onHideDropdown();
       } else {
@@ -389,19 +392,18 @@ class EmojiPickerDropdown extends PureComponent {
   };
 
   render () {
-    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis } = this.props;
-    const title = intl.formatMessage(messages.emoji);
+    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis, title, icon, disabled } = this.props;
     const { active, loading, placement } = this.state;
 
     return (
       <div className='emoji-picker-dropdown' onKeyDown={this.handleKeyDown} ref={this.setTargetRef}>
         <IconButton
-          title={title}
+          title={title || intl.formatMessage(messages.emoji)}
           aria-expanded={active}
           active={active}
-          iconComponent={MoodIcon}
+          disabled={disabled}
+          iconComponent={icon || MoodIcon}
           onClick={this.onToggle}
-          inverted
         />
 
         <Overlay show={active} placement={placement} flip target={this.findTarget} popperConfig={{ strategy: 'fixed', onFirstUpdate: this.handleOverlayEnter }}>
