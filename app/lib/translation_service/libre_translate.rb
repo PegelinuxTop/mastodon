@@ -52,7 +52,7 @@ class TranslationService::LibreTranslate < TranslationService
       Translation.new(
         text: text,
         detected_source_language: data.dig('detectedLanguage', index, 'language') || source_language,
-        provider: 'LibreTranslate'
+        provider: 'DXTranslate by @BlackyCats@misskey.id'
       )
     end
   rescue Oj::ParseError
